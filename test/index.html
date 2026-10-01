@@ -1,0 +1,648 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>$COOKED test bake</title>
+<meta name="robots" content="noindex">
+<meta name="description" content="$COOKED is a fair-launch meme token on BlockDAG. Everyone buys from the same oven. At 100% it's served on Reef and the pool is locked forever.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23FFC23A'/%3E%3Cpath d='M32 8c4 10 14 14 14 28a14 14 0 0 1-28 0c0-7 4-11 7-15 1 5 3 7 6 8-2-8 0-15 1-21z' fill='%23D7372B'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.17.0/ethers.umd.min.js"></script>
+<style>
+:root{
+  --mustard:#FFC23A; --mustard-deep:#F2A900; --ketchup:#D7372B; --ketchup-deep:#A8241B;
+  --tile:#FFFDF5; --char:#2A1A14; --char-soft:#5B463C; --mint:#8ED8C2; --mint-deep:#2E8C72;
+  --line:#2A1A14;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--mustard);color:var(--char);font:16px/1.55 "Nunito",system-ui,sans-serif}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--ketchup);outline-offset:2px}
+.wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+h1,h2,.display{font-family:"Bagel Fat One",system-ui,sans-serif;font-weight:400;letter-spacing:.005em}
+
+/* header */
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 0}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;font-family:"Bagel Fat One",system-ui,sans-serif;font-size:28px;line-height:1}
+.logo svg{width:40px;height:40px}
+.btn{appearance:none;border:3px solid var(--line);background:var(--tile);color:var(--char);font:800 16px/1 "Nunito",system-ui,sans-serif,system-ui,sans-serif;padding:12px 18px;border-radius:999px;cursor:pointer;box-shadow:0 4px 0 var(--line);transition:transform .08s,box-shadow .08s}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--line)}
+.btn[disabled]{opacity:.5;cursor:not-allowed;transform:none;box-shadow:0 4px 0 var(--line)}
+.btn.hot{background:var(--ketchup);color:#fff}
+.btn.big{width:100%;font-size:20px;padding:18px}
+
+/* hero */
+.hero{display:grid;grid-template-columns:1.1fr .9fr;grid-template-areas:"intro oven" "panel oven";gap:0 28px;align-items:start;padding:8px 0 40px}
+.hero .intro{grid-area:intro}.hero .panel{grid-area:panel}.hero .oven{grid-area:oven}
+.intro h1{font-size:clamp(44px,7vw,84px);line-height:.95;margin:6px 0 14px}
+.intro p.lede{font-size:19px;max-width:34em;margin:0 0 4px}
+@media (max-width:860px){.intro p.lede{margin-bottom:22px}}
+.oven{background:var(--char);color:var(--tile);border-radius:28px;padding:22px 22px 18px;border:3px solid var(--line);box-shadow:0 8px 0 var(--ketchup-deep)}
+.oven-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-weight:800}
+.oven-top .status{color:var(--mint)}
+.dial{display:block;width:100%;max-width:440px;margin:6px auto 0}
+.dial .track{fill:none;stroke:#4a352c;stroke-width:26;stroke-linecap:round}
+.dial .fill{fill:none;stroke:var(--ketchup);stroke-width:26;stroke-linecap:round}
+.dial .tick{stroke:var(--tile);stroke-width:3;opacity:.5}
+.dial .tlabel{fill:var(--tile);opacity:.65;font:700 13px "Nunito",system-ui,sans-serif,system-ui,sans-serif;text-anchor:middle}
+.dial .needle{stroke:var(--mustard);stroke-width:6;stroke-linecap:round}
+.dial .hub{fill:var(--mustard)}
+.temp{text-align:center;margin-top:-64px;position:relative}
+.temp .deg{font-family:"Bagel Fat One",system-ui,sans-serif;font-size:64px;line-height:1;color:var(--mustard)}
+.temp .sub{font-weight:600;opacity:.85}
+.meter{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px}
+.meter div{background:#3a2820;border-radius:14px;padding:10px 12px}
+.meter b{display:block;font-size:18px;color:var(--mint);font-variant-numeric:tabular-nums}
+.meter span{font-size:13px;opacity:.8}
+
+/* order panel */
+.panel{background:var(--tile);border:3px solid var(--line);border-radius:24px;padding:18px;box-shadow:0 6px 0 var(--line);margin-top:22px}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.tab{border:3px solid var(--line);background:transparent;border-radius:16px;padding:12px;font:800 17px "Nunito",system-ui,sans-serif,system-ui,sans-serif;cursor:pointer;color:var(--char)}
+.tab[aria-selected="true"]{background:var(--mustard)}
+.field{border:3px solid var(--line);border-radius:16px;padding:10px 14px;background:#fff;display:flex;align-items:center;gap:10px}
+.field input{border:0;outline:0;font:800 28px "Nunito",system-ui,sans-serif,system-ui,sans-serif;width:100%;min-width:0;background:transparent;color:var(--char);font-variant-numeric:tabular-nums}
+.field .unit{font-weight:800;white-space:nowrap}
+.field .max{border:2px solid var(--line);background:var(--mint);border-radius:999px;font:800 13px "Nunito",system-ui,sans-serif,system-ui,sans-serif;padding:4px 10px;cursor:pointer}
+.quick{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
+.quick button{border:2px solid var(--line);background:#fff;border-radius:999px;padding:6px 12px;font:700 14px "Nunito",system-ui,sans-serif,system-ui,sans-serif;cursor:pointer}
+.out{margin:12px 0 14px;font-size:17px}
+.out b{font-variant-numeric:tabular-nums}
+.small{font-size:14px;color:var(--char-soft)}
+.msg{margin-top:12px;font-weight:700;min-height:1.4em}
+.msg.err{color:var(--ketchup-deep)}
+.msg.ok{color:var(--mint-deep)}
+.served,.serve{text-align:center}
+.served h2,.serve h2{font-size:34px;margin:4px 0 8px}
+
+/* tickets */
+section{padding:34px 0}
+section h2{font-size:40px;margin:0 0 6px;line-height:1}
+section .intro-line{margin:0 0 18px;max-width:40em}
+.tickets{display:flex;gap:14px;overflow-x:auto;padding:8px 4px 18px;scroll-snap-type:x mandatory}
+.ticket{flex:0 0 210px;scroll-snap-align:start;background:var(--tile);border:2px solid var(--line);padding:14px 14px 12px;position:relative;font-variant-numeric:tabular-nums;
+  -webkit-mask:radial-gradient(circle 7px at 50% 0,#0000 98%,#000) top/22px 51% repeat-x,radial-gradient(circle 7px at 50% 100%,#0000 98%,#000) bottom/22px 51% repeat-x;
+  mask:radial-gradient(circle 7px at 50% 0,#0000 98%,#000) top/22px 51% repeat-x,radial-gradient(circle 7px at 50% 100%,#0000 98%,#000) bottom/22px 51% repeat-x}
+.ticket:nth-child(odd){transform:rotate(-1.2deg)}
+.ticket:nth-child(even){transform:rotate(1deg)}
+.ticket .kind{font-family:"Bagel Fat One",system-ui,sans-serif;font-size:22px;line-height:1.1}
+.ticket.sell .kind{color:var(--ketchup)}
+.ticket .row{display:flex;justify-content:space-between;gap:8px;font-size:14px;border-top:2px dashed #cdbfae;padding-top:6px;margin-top:6px}
+.empty{background:var(--tile);border:3px dashed var(--line);border-radius:20px;padding:20px;font-weight:700}
+
+/* steps */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;counter-reset:s;list-style:none;padding:0;margin:0}
+.steps li{background:var(--tile);border:3px solid var(--line);border-radius:22px;padding:18px;counter-increment:s}
+.steps li::before{content:counter(s);display:inline-grid;place-items:center;width:40px;height:40px;border-radius:50%;background:var(--ketchup);color:#fff;font-family:"Bagel Fat One",system-ui,sans-serif;font-size:22px;margin-bottom:8px}
+.steps h3{margin:0 0 6px;font-size:20px}
+.steps p{margin:0}
+
+/* warning */
+.warning{background:var(--tile);border:4px solid var(--ketchup);border-radius:24px;padding:22px 24px;box-shadow:0 6px 0 var(--ketchup-deep)}
+.warning h2{color:var(--ketchup)}
+.warning ul{margin:10px 0 0;padding-left:20px}
+.warning li{margin:6px 0}
+
+/* fine print */
+.fine{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.fine dl{margin:0;display:grid;align-content:start;grid-template-columns:auto 1fr;gap:6px 14px;font-size:15px}
+.fine dt{font-weight:800}
+.fine dd{margin:0;word-break:break-all}
+footer{padding:24px 0 40px;font-size:14px;color:var(--char-soft)}
+
+@media (max-width:860px){
+  .hero{grid-template-columns:1fr;grid-template-areas:"intro" "oven" "panel"}
+  .steps{grid-template-columns:1fr}
+  .fine{grid-template-columns:1fr}
+}
+@media (max-width:420px){
+  .wrap{padding:0 16px}
+  .temp .deg{font-size:52px}
+  .meter b{font-size:15px}
+  .field input{font-size:24px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:50}
+</style>
+</head>
+<body>
+<div style="background:#2A1A14;color:#FFC23A;text-align:center;font:800 15px/1.4 Nunito,system-ui,sans-serif;padding:10px 16px">TEST BAKE: this page uses the throwaway CTEST contract with a 1 BDAG oven. It is not $COOKED.</div>
+<div class="wrap">
+  <header>
+    <a class="logo" href="#" aria-label="$COOKED home">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="16" fill="#2A1A14"/><path d="M32 8c4 10 14 14 14 28a14 14 0 0 1-28 0c0-7 4-11 7-15 1 5 3 7 6 8-2-8 0-15 1-21z" fill="#D7372B"/><path d="M32 30c2 5 7 7 7 13a7 7 0 0 1-14 0c0-4 3-6 4-9 1 3 2 4 3 4-1-3-1-5 0-8z" fill="#FFC23A"/></svg>
+      $COOKED
+    </a>
+    <button class="btn" id="connect">Connect wallet</button>
+  </header>
+
+  <div class="hero">
+    <div class="intro">
+      <h1>Throw it in. Watch it cook.</h1>
+      <p class="lede">$COOKED is a fair-launch meme token on BlockDAG. Everyone buys from the same oven at the same price. When it hits 100%, it's served on Reef and the pool is locked forever.</p>
+    </div>
+
+      <div class="panel" id="panel">
+        <div id="tradeBox">
+          <div class="tabs" role="tablist">
+            <button class="tab" role="tab" id="tabBuy" aria-selected="true">Throw it in</button>
+            <button class="tab" role="tab" id="tabSell" aria-selected="false">Send it back</button>
+          </div>
+          <label class="small" for="amount" id="amountLabel">You pay</label>
+          <div class="field">
+            <input id="amount" inputmode="decimal" autocomplete="off" placeholder="0" aria-describedby="quote">
+            <button class="max" id="maxBtn" type="button" hidden>Max</button>
+            <span class="unit" id="unit">BDAG</span>
+          </div>
+          <div class="quick" id="quick">
+            <button type="button" data-v="10">10</button><button type="button" data-v="50">50</button><button type="button" data-v="100">100</button><button type="button" data-v="500">500</button>
+          </div>
+          <div class="out" id="quote">Type an amount to see what you'd get.</div>
+          <button class="btn hot big" id="go" disabled>Connect wallet first</button>
+          <p class="small" id="feeNote">1% kitchen fee on every buy and sell. Your price is protected to within 2%; if it moves more before your order lands, the order is cancelled and nothing is spent.</p>
+        </div>
+        <div class="serve" id="serveBox" hidden>
+          <h2>The oven's full 🔥</h2>
+          <p>All 800 million COOKED on the curve are sold. Anyone can serve it: this moves the BDAG raised and the last 200 million COOKED into a Reef pool at the same price, and burns the pool tokens so the liquidity can never be pulled.</p>
+          <button class="btn hot big" id="serveBtn">Serve it</button>
+        </div>
+        <div class="served" id="servedBox" hidden>
+          <h2>Served on Reef 🍽️</h2>
+          <p>The oven is closed. $COOKED now trades on Reef, and the pool's liquidity is burned for good.</p>
+          <a class="btn hot big" id="reefLink" href="https://reefdex.fyi" target="_blank" rel="noopener" style="display:block;text-align:center;text-decoration:none">Trade on Reef</a>
+          <p class="small" id="servedProof"></p>
+        </div>
+        <div class="msg" id="msg" role="status" aria-live="polite"></div>
+      </div>
+
+    <div class="oven" aria-label="Oven progress">
+      <div class="oven-top"><span>The oven</span><span class="status" id="status">Checking…</span></div>
+      <svg class="dial" viewBox="0 0 400 300" role="img" aria-labelledby="dialTitle">
+        <title id="dialTitle">Oven dial showing how much of the curve is sold</title>
+        <path class="track" d="M 50 210 A 150 150 0 1 1 350 210"/>
+        <path class="fill" id="arc" d="M 50 210 A 150 150 0 1 1 350 210"/>
+        <g id="ticks"></g>
+        <line class="needle" id="needle" x1="200" y1="165" x2="200" y2="65"/>
+        <circle class="hub" cx="200" cy="165" r="14"/>
+      </svg>
+      <div class="temp"><div class="deg" id="deg">20°</div><div class="sub" id="pct">0% cooked</div></div>
+      <div class="meter">
+        <div><b id="mRaised">–</b><span>BDAG in the oven</span></div>
+        <div><b id="mPrice">–</b><span>BDAG per 1M COOKED</span></div>
+        <div><b id="mLeft">–</b><span>COOKED left on the curve</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <section aria-labelledby="ticketsH">
+    <h2 id="ticketsH">Order tickets</h2>
+    <p class="intro-line">Every buy and sell on the curve, newest first, read straight from the chain.</p>
+    <div class="tickets" id="tickets"><div class="empty">No orders yet. The first ticket could be yours.</div></div>
+  </section>
+
+  <section aria-labelledby="howH">
+    <h2 id="howH">How the kitchen works</h2>
+    <p class="intro-line">No presale, no team bag, no secret recipe. Three steps, all run by the contract.</p>
+    <ol class="steps">
+      <li><h3>Cook on the curve</h3><p>Buy COOKED with BDAG. Each buy raises the price a little and each sell lowers it. 800 million COOKED are on the curve, and the last one costs 16 times the first.</p></li>
+      <li><h3>The oven hits 100%</h3><p>When all 800 million are sold, the curve closes. Nobody can buy or sell on it any more.</p></li>
+      <li><h3>Served on Reef</h3><p>Anyone presses Serve it. The BDAG raised and the last 200 million COOKED go into a Reef pool at the curve's final price, and the pool tokens are burned so the liquidity stays forever.</p></li>
+    </ol>
+  </section>
+
+  <section aria-labelledby="warnH">
+    <div class="warning">
+      <h2 id="warnH">Chef's warning</h2>
+      <p><b>This is a meme. It can go to zero.</b> Only cook with what you'd happily burn.</p>
+      <ul>
+        <li>Nobody's running the kitchen. There's no owner, no team allocation, no tax and no blacklist, and nothing in the contract can be changed.</li>
+        <li>The price moves fast both ways. Buying late on the curve costs up to 16 times more than buying early, and after it's served on Reef the price is whatever the market says.</li>
+        <li>Bots may try to buy in the first seconds after the oven opens. The curve treats them like everyone else, but they're quick.</li>
+        <li>The contracts are tested but not independently audited, and BlockDAG is an early-stage chain.</li>
+        <li>Check that buying tokens like this is legal where you live. This page isn't financial advice.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section aria-labelledby="fineH">
+    <h2 id="fineH">The fine print</h2>
+    <div class="fine">
+      <dl id="addrList">
+        <dt>Curve</dt><dd id="aCurve">–</dd>
+        <dt>Token</dt><dd id="aToken">–</dd>
+        <dt>Reef pool</dt><dd id="aPair">–</dd>
+      </dl>
+      <dl>
+        <dt>Supply</dt><dd>1,000,000,000 COOKED, fixed</dd>
+        <dt>On the curve</dt><dd>800,000,000 (80%)</dd>
+        <dt>For the pool</dt><dd>200,000,000 (20%)</dd>
+        <dt>Fills at</dt><dd id="fTarget">–</dd>
+        <dt>Kitchen fee</dt><dd id="fFee">–</dd>
+        <dt>Oven opens</dt><dd id="fStart">–</dd>
+      </dl>
+    </div>
+  </section>
+
+  <footer>Built by <a href="https://benjiprojects1404-services.pages.dev" target="_blank" rel="noopener">benjiprojects1404</a>. Contracts verified on the explorer once deployed. Same kitchen as <a href="https://reefdex.fyi" target="_blank" rel="noopener">Reef</a>.</footer>
+</div>
+
+<script>
+"use strict";
+// ---------- config ----------
+const CONFIG = {
+  chainId: 1404,
+  curve: "0x0f37b66c8474237f6e000A8c9E514C2e79Be8D86", // TEST BAKE (CTEST)
+  fromBlock: 23027097,
+  explorer: "https://explorer.bdagexplorer.com",
+  reef: "https://reefdex.fyi",
+};
+// Local rehearsal overrides: ?rpc=http://127.0.0.1:8545&curve=0x...
+const qs = new URLSearchParams(location.search);
+const LOCAL = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+if (LOCAL && qs.get("curve") && ethers.isAddress(qs.get("curve"))) CONFIG.curve = qs.get("curve");
+const LOCAL_RPC = LOCAL && /^http:\/\/127\.0\.0\.1:\d+$/.test(qs.get("rpc") || "") ? qs.get("rpc") : null;
+
+const RPC_LIST_URL = "https://www.nodaldex.fyi/api/rpcs";
+const SAFE_RPC_URL = /^https:\/\/[a-z0-9.-]+(\/[A-Za-z0-9\/_-]*)?$/i;
+let RPC_URLS = LOCAL_RPC ? [LOCAL_RPC] : [
+  "https://rpc.blockdag.engineering", "https://rpc.england.bdag-us.org", "https://rpc.dagcore.net",
+  "https://rpc.escrowhubs.io", "https://rpc.brazil.bdag-us.org", "https://rpc.bdagexplorer.com",
+];
+const CHAIN_HEX = "0x" + CONFIG.chainId.toString(16);
+const SLIPPAGE_BPS = 200n;
+const E18 = 10n ** 18n;
+
+const CURVE_ABI = [
+  "function token() view returns (address)", "function pair() view returns (address)",
+  "function tokensSold() view returns (uint256)", "function bdagRaised() view returns (uint256)",
+  "function complete() view returns (bool)", "function graduated() view returns (bool)",
+  "function targetRaise() view returns (uint256)", "function feeBps() view returns (uint256)",
+  "function startTime() view returns (uint256)", "function spotPrice() view returns (uint256)",
+  "function quoteBuy(uint256) view returns (uint256 tokensOut, uint256 fee, uint256 refund)",
+  "function quoteSell(uint256) view returns (uint256 bdagOut, uint256 fee)",
+  "function buy(uint256 minTokensOut, uint256 deadline) payable returns (uint256)",
+  "function sell(uint256 tokensIn, uint256 minBdagOut, uint256 deadline) returns (uint256)",
+  "function graduate()",
+  "event Buy(address indexed buyer, uint256 bdagIn, uint256 fee, uint256 tokensOut, uint256 refund)",
+  "event Sell(address indexed seller, uint256 tokensIn, uint256 bdagOut, uint256 fee)",
+  "event Graduated(address indexed pair, uint256 bdag, uint256 tokens, uint256 liquidity)",
+];
+const ERC20_ABI = [
+  "function balanceOf(address) view returns (uint256)", "function allowance(address,address) view returns (uint256)",
+  "function approve(address,uint256) returns (bool)",
+];
+const CURVE_SUPPLY = 800_000_000n * E18;
+
+// ---------- state ----------
+let ro = null, curveRO = null, tokenRO = null;
+let provider = null, signer = null, account = null;
+let mode = "buy";
+let S = null; // last on-chain snapshot
+const $ = (id) => document.getElementById(id);
+
+// ---------- formatting ----------
+function fmt(wei, dp = 2) {
+  const n = Number(ethers.formatEther(wei));
+  if (n >= 1e9) return (n / 1e9).toFixed(2) + "B";
+  if (n >= 1e6) return (n / 1e6).toFixed(2) + "M";
+  if (n >= 1e4) return Math.round(n).toLocaleString("en-US");
+  return n.toLocaleString("en-US", { maximumFractionDigits: dp });
+}
+const short = (a) => a.slice(0, 6) + "…" + a.slice(-4);
+function ago(ts) {
+  const s = Math.max(0, Math.floor(Date.now() / 1000 - ts));
+  if (s < 60) return s + "s ago"; if (s < 3600) return Math.floor(s / 60) + "m ago";
+  if (s < 86400) return Math.floor(s / 3600) + "h ago"; return Math.floor(s / 86400) + "d ago";
+}
+function parseAmt(v) {
+  v = String(v || "").trim().replace(/,/g, "");
+  if (!/^\d*\.?\d*$/.test(v) || v === "" || v === ".") return 0n;
+  try { return ethers.parseEther(v); } catch { return 0n; }
+}
+function showMsg(t, kind = "") { const m = $("msg"); m.textContent = t; m.className = "msg " + kind; }
+function walletErr(e) {
+  const m = (e && (e.shortMessage || e.reason || e.message)) || "Something went wrong.";
+  if (/user rejected|denied/i.test(m)) return "Cancelled in your wallet. Nothing was sent.";
+  if (/Slippage/i.test(m)) return "The price moved more than 2% before your order landed. Nothing was spent; try again.";
+  if (/NotStarted/i.test(m)) return "The oven isn't open yet.";
+  if (/Closed/i.test(m)) return "The curve is full, so trading on it has closed.";
+  if (/insufficient funds/i.test(m)) return "Not enough BDAG in your wallet for this plus gas.";
+  return m.length > 160 ? m.slice(0, 160) + "…" : m;
+}
+
+// ---------- dial ----------
+const CX = 200, CY = 165, R = 140;
+function polar(deg, r = R) { const a = (deg - 90) * Math.PI / 180; return [CX + r * Math.cos(a), CY + r * Math.sin(a)]; }
+function arcPath(from, to) {
+  const [x1, y1] = polar(from), [x2, y2] = polar(to);
+  const large = (to - from) > 180 ? 1 : 0;
+  return `M ${x1.toFixed(1)} ${y1.toFixed(1)} A ${R} ${R} 0 ${large} 1 ${x2.toFixed(1)} ${y2.toFixed(1)}`;
+}
+const A0 = -126, A1 = 126; // dial runs from -126° to +126°
+(function drawTicks() {
+  $("arc").setAttribute("d", arcPath(A0, A0 + 0.01));
+  document.querySelector(".dial .track").setAttribute("d", arcPath(A0, A1));
+  const g = $("ticks"); let html = "";
+  const labels = [[0, "Raw"], [1, "Cooked"]];
+  for (let i = 0; i <= 10; i++) {
+    const d = A0 + (A1 - A0) * i / 10;
+    const [x1, y1] = polar(d, R - 22), [x2, y2] = polar(d, R - 34);
+    html += `<line class="tick" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`;
+  }
+  for (const [f, t] of labels) {
+    const [x, y] = polar(A0 + (A1 - A0) * f, R);
+    html += `<text class="tlabel" x="${x}" y="${y + 36}">${t}</text>`;
+  }
+  g.innerHTML = html;
+})();
+let shownFrac = 0;
+function setDial(frac) {
+  frac = Math.max(0, Math.min(1, frac));
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const from = shownFrac, t0 = performance.now(), dur = reduce ? 0 : 900;
+  function step(now) {
+    const k = dur ? Math.min(1, (now - t0) / dur) : 1;
+    const e = 1 - Math.pow(1 - k, 3);
+    const f = from + (frac - from) * e;
+    const d = A0 + (A1 - A0) * f;
+    $("arc").setAttribute("d", arcPath(A0, Math.max(A0 + 0.01, d)));
+    const [x, y] = polar(d, R - 40);
+    $("needle").setAttribute("x2", x.toFixed(1)); $("needle").setAttribute("y2", y.toFixed(1));
+    if (k < 1) requestAnimationFrame(step); else shownFrac = frac;
+  }
+  requestAnimationFrame(step);
+  const pct = frac * 100;
+  $("deg").textContent = Math.round(20 + frac * 230) + "°";
+  $("pct").textContent = (pct >= 100 ? "100" : pct < 1 && pct > 0 ? pct.toFixed(2) : pct.toFixed(1)) + "% cooked";
+}
+
+// ---------- RPC ----------
+async function pickProvider() {
+  if (!LOCAL_RPC) {
+    try {
+      const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), 5000);
+      const res = await fetch(RPC_LIST_URL, { signal: ctl.signal }); clearTimeout(t);
+      const j = await res.json();
+      const usable = (j.rpcs || []).filter((r) => r && r.usable && SAFE_RPC_URL.test(r.url)).map((r) => r.url);
+      if (usable.length) RPC_URLS = usable;
+    } catch {}
+  }
+  for (const url of RPC_URLS) {
+    try {
+      const p = new ethers.JsonRpcProvider(url, CONFIG.chainId, { staticNetwork: true });
+      await Promise.race([p.getBlockNumber(), new Promise((_, r) => setTimeout(() => r(new Error("timeout")), 6000))]);
+      return p;
+    } catch {}
+  }
+  throw new Error("No BlockDAG node answered.");
+}
+
+// ---------- read ----------
+async function refresh() {
+  if (!curveRO) return;
+  try {
+    const [sold, raised, complete, graduated, target, fee, start, price] = await Promise.all([
+      curveRO.tokensSold(), curveRO.bdagRaised(), curveRO.complete(), curveRO.graduated(),
+      curveRO.targetRaise(), curveRO.feeBps(), curveRO.startTime(), curveRO.spotPrice(),
+    ]);
+    S = { sold, raised, complete, graduated, target, fee, start: Number(start), price };
+    const frac = Number(sold * 10000n / CURVE_SUPPLY) / 10000;
+    setDial(graduated || complete ? 1 : frac);
+    $("mRaised").textContent = fmt(raised, 1);
+    $("mPrice").textContent = Number(ethers.formatEther(price * 1_000_000n)).toLocaleString("en-US", { maximumFractionDigits: 3 });
+    $("mLeft").textContent = fmt(CURVE_SUPPLY - sold);
+    $("fTarget").textContent = fmt(target, 0) + " BDAG raised";
+    $("fFee").textContent = (Number(fee) / 100) + "% on curve buys and sells";
+    $("fStart").textContent = new Date(S.start * 1000).toLocaleString();
+    const now = Date.now() / 1000;
+    $("status").textContent = graduated ? "Served" : complete ? "Ready to serve" : now < S.start ? "Preheating" : "Cooking";
+    $("tradeBox").hidden = complete || graduated;
+    $("serveBox").hidden = !(complete && !graduated);
+    $("servedBox").hidden = !graduated;
+    if (graduated) $("reefLink").href = CONFIG.reef;
+    updateGo(); quote();
+  } catch (e) { $("status").textContent = "Can't reach the chain"; }
+}
+
+function countdown() {
+  if (!S || S.complete || S.graduated) return;
+  const left = S.start - Math.floor(Date.now() / 1000);
+  if (left > 0) {
+    const h = Math.floor(left / 3600), m = Math.floor(left % 3600 / 60), s = left % 60;
+    $("status").textContent = `Opens in ${h}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+  } else if ($("status").textContent.startsWith("Opens")) { $("status").textContent = "Cooking"; updateGo(); }
+}
+
+// ---------- tickets ----------
+let lastBlock = null; const seen = new Map();
+async function loadTickets() {
+  if (!curveRO) return;
+  try {
+    const head = await ro.getBlockNumber();
+    const from = lastBlock == null ? Math.max(CONFIG.fromBlock, head - 200000) : lastBlock + 1;
+    if (from > head) return;
+    const CHUNK = 50000; const logs = [];
+    for (let b = from; b <= head; b += CHUNK) {
+      const to = Math.min(head, b + CHUNK - 1);
+      const [buys, sells] = await Promise.all([
+        curveRO.queryFilter(curveRO.filters.Buy(), b, to), curveRO.queryFilter(curveRO.filters.Sell(), b, to),
+      ]);
+      logs.push(...buys, ...sells);
+    }
+    lastBlock = head;
+    for (const l of logs) {
+      const key = l.transactionHash + ":" + l.index;
+      if (seen.has(key)) continue;
+      const blk = await l.getBlock();
+      seen.set(key, { l, ts: blk.timestamp, order: l.blockNumber * 1e5 + l.index });
+    }
+    renderTickets();
+  } catch {}
+}
+function renderTickets() {
+  const items = [...seen.values()].sort((a, b) => b.order - a.order).slice(0, 14);
+  if (!items.length) return;
+  const box = $("tickets"); box.textContent = "";
+  for (const { l, ts } of items) {
+    const isBuy = l.fragment.name === "Buy";
+    const bdag = isBuy ? l.args.bdagIn - l.args.refund : l.args.bdagOut;
+    const tok = isBuy ? l.args.tokensOut : l.args.tokensIn;
+    const who = isBuy ? l.args.buyer : l.args.seller;
+    const b = Number(ethers.formatEther(bdag));
+    const kind = !isBuy ? "Sent back" : b < 10 ? "Nibble" : b <= 100 ? "Seconds" : "All-you-can-eat";
+    const el = document.createElement("article");
+    el.className = "ticket" + (isBuy ? "" : " sell");
+    const k = document.createElement("div"); k.className = "kind"; k.textContent = kind; el.append(k);
+    const row = (a, b2) => { const r = document.createElement("div"); r.className = "row"; const x = document.createElement("span"); x.textContent = a; const y = document.createElement("b"); y.textContent = b2; r.append(x, y); return r; };
+    el.append(row("BDAG", fmt(bdag, 3)), row("COOKED", fmt(tok)), row(short(who), ago(ts)));
+    const link = document.createElement("a"); link.href = `${CONFIG.explorer}/tx/${l.transactionHash}`; link.target = "_blank"; link.rel = "noopener";
+    link.className = "small"; link.textContent = "See transaction"; el.append(link);
+    box.append(el);
+  }
+}
+
+// ---------- trade UI ----------
+function setMode(m) {
+  mode = m;
+  $("tabBuy").setAttribute("aria-selected", m === "buy"); $("tabSell").setAttribute("aria-selected", m === "sell");
+  $("unit").textContent = m === "buy" ? "BDAG" : "COOKED";
+  $("amountLabel").textContent = m === "buy" ? "You pay" : "You send back";
+  $("quick").hidden = m !== "buy"; $("maxBtn").hidden = m !== "sell";
+  $("amount").value = ""; quote(); updateGo();
+}
+let quoteSeq = 0, lastQuote = null;
+async function quote() {
+  const amt = parseAmt($("amount").value); const seq = ++quoteSeq; lastQuote = null;
+  if (!curveRO || amt === 0n) { $("quote").textContent = mode === "buy" ? "Type an amount to see what you'd get." : "Type how much COOKED to send back."; updateGo(); return; }
+  try {
+    if (mode === "buy") {
+      const [out, fee, refund] = await curveRO.quoteBuy(amt);
+      if (seq !== quoteSeq) return;
+      lastQuote = { out };
+      $("quote").innerHTML = "";
+      const b = document.createElement("b"); b.textContent = fmt(out) + " COOKED";
+      $("quote").append("You get about ", b, refund > 0n ? `. The oven fills up first, so ${fmt(refund, 3)} BDAG comes back to you.` : ".");
+    } else {
+      const [out] = await curveRO.quoteSell(amt);
+      if (seq !== quoteSeq) return;
+      lastQuote = { out };
+      $("quote").innerHTML = "";
+      const b = document.createElement("b"); b.textContent = fmt(out, 4) + " BDAG";
+      $("quote").append("You get about ", b, ".");
+    }
+  } catch { if (seq === quoteSeq) $("quote").textContent = "Couldn't get a price right now."; }
+  updateGo();
+}
+function updateGo() {
+  const go = $("go"); const amt = parseAmt($("amount").value);
+  if (!CONFIG.curve) { go.disabled = true; go.textContent = "The oven isn't lit yet"; return; }
+  if (!account) { go.disabled = false; go.textContent = "Connect wallet"; return; }
+  if (S && Date.now() / 1000 < S.start) { go.disabled = true; go.textContent = "Oven's still preheating"; return; }
+  if (amt === 0n) { go.disabled = true; go.textContent = mode === "buy" ? "Enter an amount" : "Enter an amount"; return; }
+  go.disabled = !lastQuote;
+  go.textContent = mode === "buy" ? `Throw in ${$("amount").value} BDAG` : `Send back ${$("amount").value} COOKED`;
+}
+
+// ---------- wallet ----------
+async function connect() {
+  if (!window.ethereum) { showMsg("No wallet found. Open this page in MetaMask's browser, or install MetaMask.", "err"); return false; }
+  try {
+    await window.ethereum.request({ method: "eth_requestAccounts" });
+    try { await window.ethereum.request({ method: "wallet_switchEthereumChain", params: [{ chainId: CHAIN_HEX }] }); }
+    catch (e) {
+      if (e && (e.code === 4902 || /Unrecognized chain/i.test(e.message || ""))) {
+        await window.ethereum.request({ method: "wallet_addEthereumChain", params: [{ chainId: CHAIN_HEX, chainName: "BlockDAG", nativeCurrency: { name: "BlockDAG", symbol: "BDAG", decimals: 18 }, rpcUrls: RPC_URLS.slice(0, 3), blockExplorerUrls: [CONFIG.explorer] }] });
+      } else throw e;
+    }
+    provider = new ethers.BrowserProvider(window.ethereum);
+    signer = await provider.getSigner(); account = await signer.getAddress();
+    $("connect").textContent = short(account); showMsg("");
+    updateGo(); return true;
+  } catch (e) { showMsg(walletErr(e), "err"); return false; }
+}
+async function trade() {
+  if (!account) { await connect(); return; }
+  const amt = parseAmt($("amount").value); if (amt === 0n) return;
+  const c = new ethers.Contract(CONFIG.curve, CURVE_ABI, signer);
+  const deadline = BigInt(Math.floor(Date.now() / 1000) + 600);
+  const go = $("go"); go.disabled = true;
+  try {
+    if (mode === "buy") {
+      const [out] = await curveRO.quoteBuy(amt);
+      const min = out * (10000n - SLIPPAGE_BPS) / 10000n;
+      showMsg("Confirm in your wallet…");
+      const tx = await c.buy(min, deadline, { value: amt });
+      showMsg("In the oven… waiting for the chain.");
+      await tx.wait();
+      showMsg(`Thrown in. You got about ${fmt(out)} COOKED.`, "ok");
+    } else {
+      const tok = new ethers.Contract(await curveRO.token(), ERC20_ABI, signer);
+      const bal = await tok.balanceOf(account);
+      if (amt > bal) { showMsg("You don't have that much COOKED.", "err"); go.disabled = false; return; }
+      const allowance = await tok.allowance(account, CONFIG.curve);
+      if (allowance < amt) {
+        showMsg("First, allow the curve to take exactly this much COOKED. Confirm in your wallet…");
+        const ap = await tok.approve(CONFIG.curve, amt); await ap.wait();
+      }
+      const [out] = await curveRO.quoteSell(amt);
+      const min = out * (10000n - SLIPPAGE_BPS) / 10000n;
+      showMsg("Confirm the sale in your wallet…");
+      const tx = await c.sell(amt, min, deadline);
+      showMsg("Sending it back… waiting for the chain.");
+      await tx.wait();
+      showMsg(`Sent back. About ${fmt(out, 4)} BDAG is on its way to you.`, "ok");
+    }
+    $("amount").value = "";
+  } catch (e) { showMsg(walletErr(e), "err"); }
+  await refresh(); await loadTickets();
+}
+async function serve() {
+  if (!account && !(await connect())) return;
+  const c = new ethers.Contract(CONFIG.curve, CURVE_ABI, signer);
+  $("serveBtn").disabled = true;
+  try {
+    showMsg("Confirm in your wallet…");
+    const tx = await c.graduate();
+    showMsg("Plating up…");
+    const rc = await tx.wait();
+    showMsg("Served! $COOKED is now on Reef.", "ok");
+    $("servedProof").textContent = "";
+    const a = document.createElement("a"); a.href = `${CONFIG.explorer}/tx/${rc.hash}`; a.target = "_blank"; a.rel = "noopener"; a.textContent = "See the serve transaction";
+    $("servedProof").append(a);
+    confetti();
+  } catch (e) { showMsg(walletErr(e), "err"); $("serveBtn").disabled = false; }
+  await refresh();
+}
+function confetti() {
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const c = document.createElement("canvas"); c.className = "confetti"; document.body.append(c);
+  const x = c.getContext("2d"); c.width = innerWidth; c.height = innerHeight;
+  const cols = ["#D7372B", "#FFC23A", "#8ED8C2", "#2A1A14", "#FFFDF5"];
+  const P = Array.from({ length: 140 }, () => ({ x: Math.random() * c.width, y: -20 - Math.random() * c.height * .5, v: 2 + Math.random() * 4, r: Math.random() * 6.28, s: 6 + Math.random() * 8, c: cols[Math.floor(Math.random() * 5)] }));
+  let f = 0; (function loop() { x.clearRect(0, 0, c.width, c.height); for (const p of P) { p.y += p.v; p.r += .1; x.save(); x.translate(p.x, p.y); x.rotate(p.r); x.fillStyle = p.c; x.fillRect(-p.s / 2, -p.s / 4, p.s, p.s / 2); x.restore(); } if (++f < 220) requestAnimationFrame(loop); else c.remove(); })();
+}
+
+// ---------- wiring ----------
+$("tabBuy").onclick = () => setMode("buy");
+$("tabSell").onclick = () => setMode("sell");
+$("amount").addEventListener("input", () => { updateGo(); clearTimeout(window._q); window._q = setTimeout(quote, 250); });
+$("quick").addEventListener("click", (e) => { const v = e.target.dataset && e.target.dataset.v; if (v) { $("amount").value = v; quote(); } });
+$("maxBtn").onclick = async () => {
+  if (!account || !tokenRO) return;
+  $("amount").value = ethers.formatEther(await tokenRO.balanceOf(account)); quote();
+};
+$("connect").onclick = connect;
+$("go").onclick = trade;
+$("serveBtn").onclick = serve;
+if (window.ethereum && window.ethereum.on) {
+  window.ethereum.on("accountsChanged", () => { account = null; $("connect").textContent = "Connect wallet"; updateGo(); });
+  window.ethereum.on("chainChanged", () => location.reload());
+}
+
+(async function init() {
+  setDial(0);
+  if (!CONFIG.curve) { $("status").textContent = "Not lit yet"; updateGo(); return; }
+  try {
+    ro = await pickProvider();
+    curveRO = new ethers.Contract(CONFIG.curve, CURVE_ABI, ro);
+    const [tokenAddr, pairAddr] = await Promise.all([curveRO.token(), curveRO.pair()]);
+    tokenRO = new ethers.Contract(tokenAddr, ERC20_ABI, ro);
+    for (const [id, a] of [["aCurve", CONFIG.curve], ["aToken", tokenAddr], ["aPair", pairAddr]]) {
+      const el = $(id); el.textContent = ""; const link = document.createElement("a");
+      link.href = `${CONFIG.explorer}/address/${a}`; link.target = "_blank"; link.rel = "noopener"; link.textContent = a; el.append(link);
+    }
+    await refresh(); loadTickets();
+    setInterval(refresh, 15000); setInterval(loadTickets, 20000); setInterval(countdown, 1000);
+    setInterval(() => { if (seen.size) renderTickets(); }, 60000);
+  } catch (e) { $("status").textContent = "Can't reach the chain"; }
+})();
+</script>
+</body>
+</html>
