@@ -527,7 +527,7 @@ function updateGo() {
   if (S && Date.now() / 1000 < S.start) { go.disabled = true; go.textContent = "Oven's still preheating"; return; }
   if (amt === 0n) { go.disabled = true; go.textContent = mode === "buy" ? "Enter an amount" : "Enter an amount"; return; }
   go.disabled = !lastQuote;
-  go.textContent = mode === "buy" ? `Throw in ${$("amount").value} BDAG` : `Send back ${$("amount").value} COOKED`;
+  go.textContent = mode === "buy" ? `Throw in ${fmt(amt, 4)} BDAG` : `Send back ${fmt(amt)} COOKED`;
 }
 
 // ---------- wallet ----------
