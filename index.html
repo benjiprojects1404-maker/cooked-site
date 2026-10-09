@@ -92,6 +92,9 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;pa
 .rcell span{font-size:13px;color:var(--char-soft)}
 .rlinks a{margin-right:14px}
 .rcell.wide{grid-column:span 2}
+.offer{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.offer .rcell b{font-size:21px}
+.offer .rcell span{display:block;margin-top:6px;line-height:1.4}
 
 /* tickets */
 section{padding:34px 0}
@@ -252,8 +255,14 @@ footer{padding:24px 0 40px;font-size:14px;color:var(--char-soft)}
 
   <section aria-labelledby="ctaH">
     <h2 id="ctaH">Want your own oven?</h2>
-    <p class="intro-line">I built and launched $COOKED, along with Reef, Nodal and Handshake. If you have a BlockDAG token to launch, I can build the token, the pool with locked liquidity, a presale or fair-launch curve, and the site, at a fixed price. You keep your own keys. No promises about how any token trades.</p>
-    <a class="btn hot" href="https://benjiprojects1404-services.pages.dev" target="_blank" rel="noopener">See the build &amp; launch services</a>
+    <p class="intro-line">This page is the case study. I built $COOKED on my own, along with <a href="https://reefdex.fyi" target="_blank" rel="noopener">Reef</a>, <a href="https://nodaldex.fyi" target="_blank" rel="noopener">Nodal</a> and <a href="https://handshakeotc.fyi" target="_blank" rel="noopener">Handshake</a>. If you have a BlockDAG token to launch, I can do the same for you at a fixed price, agreed in writing before work starts. You keep your own keys. No promises about how any token trades.</p>
+    <div class="record offer">
+      <div class="rcell"><b>What you saw here</b><span>A fixed-supply token with no owner, a fair-launch curve, an automatic move into a Reef pool with the liquidity permanently burned, a live results page and published source code.</span></div>
+      <div class="rcell"><b>Launch Essentials, $1,000</b><span>Token, pool on Reef with locked liquidity, a one-page site and source verified on the explorer. 1 to 2 weeks.</span></div>
+      <div class="rcell"><b>Full Launch, $3,500</b><span>Adds a presale with refund fallback, an airdrop from an on-chain snapshot, a hardware-wallet multisig and a buy-and-claim panel. 3 to 4 weeks.</span></div>
+    </div>
+    <p><a class="btn hot" href="https://benjiprojects1404-services.pages.dev" target="_blank" rel="noopener">See the build &amp; launch services</a></p>
+    <p class="small">Paid in USDT or USDC, 50% at sign-off and 50% at handover. Not an audit: independent audits are separate. Not for US/UK persons.</p>
   </section>
 
   <section aria-labelledby="fineH">
@@ -316,6 +325,7 @@ const CURVE_ABI = [
   "function quoteSell(uint256) view returns (uint256 bdagOut, uint256 fee)",
   "function buy(uint256 minTokensOut, uint256 deadline) payable returns (uint256)",
   "function sell(uint256 tokensIn, uint256 minBdagOut, uint256 deadline) returns (uint256)",
+  "function feesOwed() view returns (uint256)", "function feeRecipient() view returns (address)",
   "function graduate()",
   "event Buy(address indexed buyer, uint256 bdagIn, uint256 fee, uint256 tokensOut, uint256 refund)",
   "event Sell(address indexed seller, uint256 tokensIn, uint256 bdagOut, uint256 fee)",
@@ -488,6 +498,8 @@ async function loadRecord() {
       [String(buyers), "wallets that bought"],
       [String(buys.length + sells.length), "orders (buys and sells)"],
     ];
+    let owed = null; try { owed = await curveRO.feesOwed(); } catch (e) { /* older curve ABI: skip the cell */ }
+    if (owed !== null) cells.push([fmt(owed, 2), "BDAG of kitchen fees not yet claimed (1% of every order)"]);
     if (g) {
       const blk = await g.getBlock();
       cells.push([new Date(blk.timestamp * 1000).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" }), "served on Reef"]);
