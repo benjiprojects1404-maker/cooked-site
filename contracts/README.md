@@ -19,3 +19,10 @@ Compile `CookedCurve.standard-input.json` with **solc 0.8.24** (optimizer on, 20
 Constructor arguments: `Cooked`, `COOKED`, Reef factory `0x9603042044b6B1A1637c508F731ba01219142239`, WBDAG `0x62ba5c4F067989a7f6644488C875bEa69Bfa1FBA`, fee wallet `0x1b8985f6Fe74C738452b41bb3F445D7e0c62bF17`, fee `100` (1%), target `10000000000000000000000` (10,000 BDAG), start `1791464400` (8 Oct 2026, 13:00 UTC).
 
 No owner, no admin functions: nothing above can be changed after deployment.
+
+## Verify it with one command
+```
+npm i solc@0.8.24 ethers@6
+node verify.js
+```
+`verify.js` compiles the published source, downloads the deployed code from chain 1404 and compares them. The values the constructor wrote into the code (the token, pool, WBDAG and fee wallet addresses, the fee, the target) are blanked on both sides for the comparison and printed, so you can check them against the table above. `node verify.js --selftest` runs a no-network check that the comparison catches a one-byte change.
