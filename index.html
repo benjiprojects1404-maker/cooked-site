@@ -298,8 +298,9 @@ const LOCAL_RPC = LOCAL && /^http:\/\/127\.0\.0\.1:\d+$/.test(qs.get("rpc") || "
 const RPC_LIST_URL = "https://www.nodaldex.fyi/api/rpcs";
 const SAFE_RPC_URL = /^https:\/\/[a-z0-9.-]+(\/[A-Za-z0-9\/_-]*)?$/i;
 let RPC_URLS = LOCAL_RPC ? [LOCAL_RPC] : [
-  "https://rpc.blockdag.engineering", "https://rpc.england.bdag-us.org", "https://rpc.dagcore.net",
+  "https://rpc.england.bdag-us.org", "https://rpc.dagcore.net",
   "https://rpc.escrowhubs.io", "https://rpc.brazil.bdag-us.org", "https://rpc.bdagexplorer.com",
+  "https://rpc.blockdag.engineering",
 ];
 const CHAIN_HEX = "0x" + CONFIG.chainId.toString(16);
 const SLIPPAGE_BPS = 200n;
