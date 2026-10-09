@@ -183,12 +183,12 @@ footer{padding:24px 0 40px;font-size:14px;color:var(--char-soft)}
         </div>
         <div class="serve" id="serveBox" hidden>
           <h2>The oven's full 🔥</h2>
-          <p>All 800 million COOKED on the curve are sold. Anyone can serve it: this moves the BDAG raised and the last 200 million COOKED into a Reef pool at the same price, and burns the pool tokens so the liquidity can never be pulled.</p>
+          <p>All 800 million COOKED on the curve are sold. Anyone can serve it: this moves the BDAG raised and the last 200 million COOKED into a Reef pool at the same price, and burns the pool tokens so that starting liquidity can never be pulled.</p>
           <button class="btn hot big" id="serveBtn">Serve it</button>
         </div>
         <div class="served" id="servedBox" hidden>
           <h2>Served on Reef 🍽️</h2>
-          <p>The oven is closed. $COOKED now trades on Reef, and the pool's liquidity is burned for good.</p>
+          <p>The oven is closed. $COOKED now trades on Reef, and the pool's starting liquidity is burned for good.</p>
           <a class="btn hot big" id="reefLink" href="https://reefdex.fyi" target="_blank" rel="noopener" style="display:block;text-align:center;text-decoration:none">Trade COOKED on Reef</a>
           <p class="small" id="servedProof"></p>
         </div>
@@ -235,8 +235,18 @@ footer{padding:24px 0 40px;font-size:14px;color:var(--char-soft)}
     <ol class="steps">
       <li><h3>Cook on the curve</h3><p>Buy COOKED with BDAG. Each buy raises the price a little and each sell lowers it. 800 million COOKED are on the curve, and the last one costs 16 times the first.</p></li>
       <li><h3>The oven hits 100%</h3><p>When all 800 million are sold, the curve closes. Nobody can buy or sell on it any more.</p></li>
-      <li><h3>Served on Reef</h3><p>Anyone presses Serve it. The BDAG raised and the last 200 million COOKED go into a Reef pool at the curve's final price, and the pool tokens are burned so the liquidity stays forever.</p></li>
+      <li><h3>Served on Reef</h3><p>Anyone presses Serve it. The BDAG raised and the last 200 million COOKED go into a Reef pool at the curve's final price, and the pool tokens are burned so that starting liquidity stays forever.</p></li>
     </ol>
+  </section>
+
+  <section aria-labelledby="faqH">
+    <h2 id="faqH">Questions</h2>
+    <div style="max-width:44em">
+      <div>
+        <p><b>Can the liquidity be pulled?</b> The starting liquidity was burned when the oven was served, so nobody can ever withdraw it, including me. Anyone can also add their own liquidity to the Reef pool and gets LP tokens for it. Those belong to them and can be removed at any time. Removing your own liquidity only returns your share; it can't take anyone else's funds, and other providers keep their percentage. If someone removes a lot, the pool gets thinner and trades move the price more. That risk applies to every pool.</p>
+        <p><b>If I add liquidity, can I get it back?</b> Yes, you can remove it whenever you like and receive your share of the BDAG and COOKED in the pool at the current price. That share can be worth more or less than what you put in, because the price moves with trades.</p>
+      </div>
+    </div>
   </section>
 
   <section aria-labelledby="warnH">
@@ -257,8 +267,8 @@ footer{padding:24px 0 40px;font-size:14px;color:var(--char-soft)}
     <h2 id="ctaH">Want your own oven?</h2>
     <p class="intro-line">This page is the case study. I built $COOKED on my own, along with <a href="https://reefdex.fyi" target="_blank" rel="noopener">Reef</a>, <a href="https://nodaldex.fyi" target="_blank" rel="noopener">Nodal</a> and <a href="https://handshakeotc.fyi" target="_blank" rel="noopener">Handshake</a>. If you have a BlockDAG token to launch, I can do the same for you at a fixed price, agreed in writing before work starts. You keep your own keys. No promises about how any token trades.</p>
     <div class="record offer">
-      <div class="rcell"><b>What you saw here</b><span>A fixed-supply token with no owner, a fair-launch curve, an automatic move into a Reef pool with the liquidity permanently burned, a live results page and published source code.</span></div>
-      <div class="rcell"><b>Launch Essentials, $1,000</b><span>Token, pool on Reef with locked liquidity, a one-page site and source verified on the explorer. 1 to 2 weeks.</span></div>
+      <div class="rcell"><b>What you saw here</b><span>A fixed-supply token with no owner, a fair-launch curve, an automatic move into a Reef pool with the starting liquidity permanently burned, a live results page and published source code.</span></div>
+      <div class="rcell"><b>Launch Essentials, $1,000</b><span>Token, pool on Reef with locked liquidity, a one-page site and published source anyone can check against the chain. 1 to 2 weeks.</span></div>
       <div class="rcell"><b>Full Launch, $3,500</b><span>Adds a presale with refund fallback, an airdrop from an on-chain snapshot, a hardware-wallet multisig and a buy-and-claim panel. 3 to 4 weeks.</span></div>
     </div>
     <p><a class="btn hot" href="https://benjiprojects1404-services.pages.dev" target="_blank" rel="noopener">See the build &amp; launch services</a></p>
@@ -466,7 +476,7 @@ async function refresh() {
     if (graduated) {
       $("reefLink").href = CONFIG.reef;
       $("heroTitle").textContent = "It's served.";
-      $("heroLede").textContent = "$COOKED was a fair-launch meme token on BlockDAG. Everyone bought from the same oven at the same price. It's now trading on Reef, and the pool's liquidity was burned in the serve transaction.";
+      $("heroLede").textContent = "$COOKED was a fair-launch meme token on BlockDAG. Everyone bought from the same oven at the same price. It's now trading on Reef, and the pool's starting liquidity was burned in the serve transaction.";
       loadRecord();
     }
     updateGo(); quote();
