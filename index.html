@@ -85,6 +85,14 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;pa
 .served,.serve{text-align:center}
 .served h2,.serve h2{font-size:34px;margin:4px 0 8px}
 
+/* result record + services card */
+.record{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:6px 0 10px}
+.rcell{background:var(--tile);border:3px solid var(--line);border-radius:16px;padding:12px 14px;box-shadow:0 4px 0 var(--line)}
+.rcell b{display:block;font-family:"Bagel Fat One",system-ui,sans-serif;font-weight:400;font-size:26px;line-height:1.1;font-variant-numeric:tabular-nums}
+.rcell span{font-size:13px;color:var(--char-soft)}
+.rlinks a{margin-right:14px}
+.rcell.wide{grid-column:span 2}
+
 /* tickets */
 section{padding:34px 0}
 section h2{font-size:40px;margin:0 0 6px;line-height:1}
@@ -147,8 +155,8 @@ footer{padding:24px 0 40px;font-size:14px;color:var(--char-soft)}
 
   <div class="hero">
     <div class="intro">
-      <h1>Throw it in. Watch it cook.</h1>
-      <p class="lede">$COOKED is a fair-launch meme token on BlockDAG. Everyone buys from the same oven at the same price. When it hits 100%, it's served on Reef and the pool is locked forever.</p>
+      <h1 id="heroTitle">Throw it in. Watch it cook.</h1>
+      <p class="lede" id="heroLede">$COOKED is a fair-launch meme token on BlockDAG. Everyone buys from the same oven at the same price. When it hits 100%, it's served on Reef and the pool is locked forever.</p>
     </div>
 
       <div class="panel" id="panel">
@@ -178,7 +186,7 @@ footer{padding:24px 0 40px;font-size:14px;color:var(--char-soft)}
         <div class="served" id="servedBox" hidden>
           <h2>Served on Reef 🍽️</h2>
           <p>The oven is closed. $COOKED now trades on Reef, and the pool's liquidity is burned for good.</p>
-          <a class="btn hot big" id="reefLink" href="https://reefdex.fyi" target="_blank" rel="noopener" style="display:block;text-align:center;text-decoration:none">Trade on Reef</a>
+          <a class="btn hot big" id="reefLink" href="https://reefdex.fyi" target="_blank" rel="noopener" style="display:block;text-align:center;text-decoration:none">Trade COOKED on Reef</a>
           <p class="small" id="servedProof"></p>
         </div>
         <div class="msg" id="msg" role="status" aria-live="polite"></div>
@@ -205,10 +213,17 @@ footer{padding:24px 0 40px;font-size:14px;color:var(--char-soft)}
 </div>
 
 <div class="wrap">
+  <section id="recordSection" aria-labelledby="recordH" hidden>
+    <h2 id="recordH">The result</h2>
+    <p class="intro-line">The oven closed and was served on Reef. Every figure here is read from the chain, not typed in.</p>
+    <div class="record" id="recordGrid"></div>
+    <p class="small rlinks" id="recordLinks"></p>
+  </section>
+
   <section aria-labelledby="ticketsH">
     <h2 id="ticketsH">Order tickets</h2>
     <p class="intro-line">Every buy and sell on the curve, newest first, read straight from the chain.</p>
-    <div class="tickets" id="tickets"><div class="empty">No orders yet. The first ticket could be yours.</div></div>
+    <div class="tickets" id="tickets"><div class="empty">Loading the orders from the chain…</div></div>
   </section>
 
   <section aria-labelledby="howH">
@@ -233,6 +248,12 @@ footer{padding:24px 0 40px;font-size:14px;color:var(--char-soft)}
         <li>Check that buying tokens like this is legal where you live. This page isn't financial advice.</li>
       </ul>
     </div>
+  </section>
+
+  <section aria-labelledby="ctaH">
+    <h2 id="ctaH">Want your own oven?</h2>
+    <p class="intro-line">I built and launched $COOKED, along with Reef, Nodal and Handshake. If you have a BlockDAG token to launch, I can build the token, the pool with locked liquidity, a presale or fair-launch curve, and the site, at a fixed price. You keep your own keys. No promises about how any token trades.</p>
+    <a class="btn hot" href="https://benjiprojects1404-services.pages.dev" target="_blank" rel="noopener">See the build &amp; launch services</a>
   </section>
 
   <section aria-labelledby="fineH">
@@ -431,9 +452,72 @@ async function refresh() {
     $("tradeBox").hidden = complete || graduated;
     $("serveBox").hidden = !(complete && !graduated);
     $("servedBox").hidden = !graduated;
-    if (graduated) $("reefLink").href = CONFIG.reef;
+    if (graduated) {
+      $("reefLink").href = CONFIG.reef;
+      $("heroTitle").textContent = "It's served.";
+      $("heroLede").textContent = "$COOKED was a fair-launch meme token on BlockDAG. Everyone bought from the same oven at the same price. It's now trading on Reef, and the pool's liquidity was burned in the serve transaction.";
+      loadRecord();
+    }
     updateGo(); quote();
   } catch (e) { $("status").textContent = "Can't reach the chain"; }
+}
+
+// ---------- result record (read once, only after it's served) ----------
+let recordState = "idle"; // idle | loading | done
+async function loadRecord() {
+  if (recordState !== "idle" || !S || !S.graduated) return;
+  recordState = "loading";
+  try {
+    const head = await ro.getBlockNumber();
+    const CHUNK = 50000; const buys = [], sells = [], grads = [];
+    for (let b = CONFIG.fromBlock; b <= head; b += CHUNK) {
+      const to = Math.min(head, b + CHUNK - 1);
+      const [x, y, z] = await Promise.all([
+        curveRO.queryFilter(curveRO.filters.Buy(), b, to), curveRO.queryFilter(curveRO.filters.Sell(), b, to),
+        curveRO.queryFilter(curveRO.filters.Graduated(), b, to),
+      ]);
+      buys.push(...x); sells.push(...y); grads.push(...z);
+    }
+    const g = grads[grads.length - 1];
+    const buyers = new Set(buys.map((l) => l.args.buyer.toLowerCase())).size;
+    const cells = [
+      [fmt(S.raised, 1), "BDAG raised"],
+      [fmt(S.sold), "COOKED sold on the curve"],
+      [Number(ethers.formatEther(S.price * 1_000_000n)).toLocaleString("en-US", { maximumFractionDigits: 3 }), "BDAG per 1M COOKED, last curve price"],
+      [String(buyers), "wallets that bought"],
+      [String(buys.length + sells.length), "orders (buys and sells)"],
+    ];
+    if (g) {
+      const blk = await g.getBlock();
+      cells.push([new Date(blk.timestamp * 1000).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" }), "served on Reef"]);
+      cells.push([fmt(g.args.bdag, 1) + " + " + fmt(g.args.tokens), "BDAG + COOKED into the Reef pool", true]);
+    }
+    // Once the curve is closed the order list can drift outside the recent-blocks window, so seed it from the full history.
+    const last = [...buys, ...sells].sort((a, b) => (b.blockNumber - a.blockNumber) || (b.index - a.index)).slice(0, 14);
+    for (const l of last) {
+      const key = l.transactionHash + ":" + l.index;
+      if (seen.has(key)) continue;
+      const blk = await l.getBlock();
+      seen.set(key, { l, ts: blk.timestamp, order: l.blockNumber * 1e5 + l.index });
+    }
+    renderTickets();
+    const grid = $("recordGrid"); grid.textContent = "";
+    for (const [v, label, wide] of cells) {
+      const c = document.createElement("div"); c.className = "rcell" + (wide ? " wide" : "");
+      const b = document.createElement("b"); b.textContent = v;
+      const sp = document.createElement("span"); sp.textContent = label;
+      c.append(b, sp); grid.append(c);
+    }
+    const links = $("recordLinks"); links.textContent = "";
+    const add = (href, text) => { const a = document.createElement("a"); a.href = href; a.target = "_blank"; a.rel = "noopener"; a.textContent = text; links.append(a); };
+    if (g) {
+      add(`${CONFIG.explorer}/tx/${g.transactionHash}`, "See the serve transaction");
+      add(`${CONFIG.explorer}/address/${g.args.pair}`, "See the Reef pool");
+    }
+    add(CONFIG.reef, "Trade on Reef");
+    $("recordSection").hidden = false;
+    recordState = "done";
+  } catch (e) { console.warn("Could not load the result record:", e); recordState = "idle"; }
 }
 
 function countdown() {
