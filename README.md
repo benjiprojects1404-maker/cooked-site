@@ -8,4 +8,4 @@ Launch page for $COOKED (https://cookedmeme.fyi), a fair-launch meme token on Bl
 
 Single static page (`index.html`), no build step. The curve address goes in `CONFIG.curve` once deployed.
 
-Built by benjiprojects1404.
+Built by Undercurrent Works.
