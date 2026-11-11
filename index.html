@@ -248,7 +248,7 @@ footer{padding:24px 0 40px;font-size:14px;color:var(--char-soft)}
     <div style="max-width:44em">
       <div>
         <p><b>Can the liquidity be pulled?</b> The starting liquidity was burned when the oven was served, so nobody can ever withdraw it, including me. Anyone can also add their own liquidity to the Reef pool and gets LP tokens for it. Those belong to them and can be removed at any time. Removing your own liquidity only returns your share; it can't take anyone else's funds, and other providers keep their percentage. If someone removes a lot, the pool gets thinner and trades move the price more. That risk applies to every pool.</p>
-        <p><b>Whose is the large LP position that was in the pool?</b> It was mine. On 9 Oct 2026 I added liquidity from my wallet 0xcA83…99B5, mistakenly thinking the oven would reopen. It doesn't. I don't want it, so I burned all of those LP tokens: <a href="https://explorer.blockdag.engineering/tx/0x48d22e9b8381cc9d7cf8b2ad6441c803b9949324e5ee2d456fae537d28a0203f" target="_blank" rel="noopener">see the burn transaction</a>. The pool's starting liquidity and my added liquidity are both now at the burn address. Around 87% of the pool's LP tokens are at the burn address. The rest (roughly 13%) belongs to other community wallets that added liquidity; they can remove it whenever they like, and that share can change over time.</p>
+        <p><b>Whose is the large LP position that was in the pool?</b> It was mine. On 9 Oct 2026 I added liquidity from my wallet 0xcA83…99B5, mistakenly thinking the oven would reopen. It doesn't. I don't want it, so I burned all of those LP tokens: <a href="https://explorer.east.bdag-us.org/tx/0x48d22e9b8381cc9d7cf8b2ad6441c803b9949324e5ee2d456fae537d28a0203f" target="_blank" rel="noopener">see the burn transaction</a>. The pool's starting liquidity and my added liquidity are both now at the burn address. Around 87% of the pool's LP tokens are at the burn address. The rest (roughly 13%) belongs to other community wallets that added liquidity; they can remove it whenever they like, and that share can change over time.</p>
         <p><b>If I add liquidity, can I get it back?</b> Yes, you can remove it whenever you like and receive your share of the BDAG and COOKED in the pool at the current price. That share can be worth more or less than what you put in, because the price moves with trades.</p>
       </div>
     </div>
@@ -310,6 +310,9 @@ const CONFIG = {
   chainId: 1404,
   curve: "0xD8a25883dd2576cB7eE7803e23f0309F56bAbA2B",
   fromBlock: 23031381,
+  // The block the curve graduated ("served") in. The curve can't trade after it, so the record and the
+  // order list never need to read past it. Read from the Graduated event, 11 Nov 2026.
+  servedBlock: 23945684,
   explorer: "https://explorer.bdagexplorer.com",
   reef: "https://reefdex.fyi",
 };
@@ -324,7 +327,6 @@ const SAFE_RPC_URL = /^https:\/\/[a-z0-9.-]+(\/[A-Za-z0-9\/_-]*)?$/i;
 let RPC_URLS = LOCAL_RPC ? [LOCAL_RPC] : [
   "https://rpc.community.bdag-us.org", "https://rpc.england.bdag-us.org", "https://rpc.dagcore.net",
   "https://rpc.escrowhubs.io", "https://rpc.brazil.bdag-us.org", "https://rpc.bdagexplorer.com",
-  "https://rpc.blockdag.engineering",
 ];
 const CHAIN_HEX = "0x" + CONFIG.chainId.toString(16);
 const SLIPPAGE_BPS = 200n;
@@ -495,15 +497,22 @@ async function loadRecord() {
   recordState = "loading";
   try {
     const head = await ro.getBlockNumber();
+    const end = Math.min(head, CONFIG.servedBlock || head);
     const CHUNK = 50000; const buys = [], sells = [], grads = [];
-    for (let b = CONFIG.fromBlock; b <= head; b += CHUNK) {
-      const to = Math.min(head, b + CHUNK - 1);
-      const [x, y, z] = await Promise.all([
-        curveRO.queryFilter(curveRO.filters.Buy(), b, to), curveRO.queryFilter(curveRO.filters.Sell(), b, to),
-        curveRO.queryFilter(curveRO.filters.Graduated(), b, to),
-      ]);
-      buys.push(...x); sells.push(...y); grads.push(...z);
-    }
+    const ranges = [];
+    for (let b = CONFIG.fromBlock; b <= end; b += CHUNK) ranges.push([b, Math.min(end, b + CHUNK - 1)]);
+    // A few ranges at a time: about 19 ranges in all, read in a few seconds rather than one by one.
+    let next = 0;
+    await Promise.all(Array.from({ length: 4 }, async () => {
+      while (next < ranges.length) {
+        const [b, to] = ranges[next++];
+        const [x, y, z] = await Promise.all([
+          curveRO.queryFilter(curveRO.filters.Buy(), b, to), curveRO.queryFilter(curveRO.filters.Sell(), b, to),
+          curveRO.queryFilter(curveRO.filters.Graduated(), b, to),
+        ]);
+        buys.push(...x); sells.push(...y); grads.push(...z);
+      }
+    }));
     const g = grads[grads.length - 1];
     const buyers = new Set(buys.map((l) => l.args.buyer.toLowerCase())).size;
     const cells = [
@@ -561,6 +570,8 @@ function countdown() {
 let lastBlock = null; const seen = new Map();
 async function loadTickets() {
   if (!curveRO) return;
+  // Once served, nothing new can happen on the curve: the full list comes from loadRecord(), so stop polling.
+  if (CONFIG.servedBlock && S && S.graduated) return;
   try {
     const head = await ro.getBlockNumber();
     const from = lastBlock == null ? Math.max(CONFIG.fromBlock, head - 200000) : lastBlock + 1;
