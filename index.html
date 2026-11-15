@@ -12,7 +12,7 @@
 <meta name="theme-color" content="#0d0b1f">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230d0b1f'/%3E%3Cpath d='M32 9c4 10 13 14 13 27a13 13 0 0 1-26 0c0-7 4-11 7-15 1 5 3 7 6 8-2-8 0-14 0-20z' fill='none' stroke='%23ff3d8b' stroke-width='4' stroke-linejoin='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Righteous&family=Nunito:wght@400;600;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Righteous&family=Yellowtail&family=Nunito:wght@400;600;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.17.0/ethers.umd.min.js"></script>
 <style>
 :root{--bg:#0d0b1f;--card:#17142e;--raised:#211d40;--line:rgba(190,170,255,.14);--line2:rgba(190,170,255,.26);
@@ -38,9 +38,23 @@ nav a::after{content:"";position:absolute;left:11px;right:11px;bottom:3px;height
 nav a:hover{color:var(--head)} nav a:hover::after{transform:scaleX(1)}
 nav a.cta{border:1px solid var(--pink);color:var(--pink);margin-left:6px;box-shadow:0 0 10px rgba(255,61,139,.2) inset}
 nav a.cta::after{display:none} nav a.cta:hover{background:var(--pink);color:var(--pink-ink)}
-@media (max-width:640px){header.top{position:static}nav{flex-wrap:nowrap;overflow-x:auto;width:100%;margin-left:0;scrollbar-width:none}nav::-webkit-scrollbar{display:none}nav a{white-space:nowrap;flex:none}nav a:not(.cta){padding:6px 8px;font-size:13px}nav a.cta{margin-left:auto}}
+@media (max-width:640px){header.top{position:static}nav{flex-wrap:nowrap;overflow-x:auto;width:100%;margin-left:0;scrollbar-width:none}nav::-webkit-scrollbar{display:none}nav a{white-space:nowrap;flex:none}nav a:not(.cta){padding:6px 8px;font-size:13px}nav a.cta{margin-left:auto}nav a.hm{display:none}}
 @media (prefers-reduced-motion:reduce){nav a::after{transition:none}}
-.hero{padding:30px 0 10px}
+.hero{padding:30px 0 10px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px;align-items:center}
+/* Diner "We're open" sign: lit when the Kitchen contract answers, dark otherwise */
+.sign{position:relative;padding-top:26px;justify-self:end}
+.sign::before,.sign::after{content:"";position:absolute;top:0;width:2px;height:26px;background:linear-gradient(var(--line2),#6d6496)}
+.sign::before{left:28%} .sign::after{right:28%}
+.sign .board{border:3px solid var(--pink);border-radius:18px;padding:10px 22px 12px;text-align:center;background:rgba(13,11,31,.65);
+  box-shadow:0 0 10px rgba(255,61,139,.55),inset 0 0 10px rgba(255,61,139,.35);transform:rotate(-3deg)}
+.sign .we{display:block;font:400 30px/1 "Yellowtail",cursive;color:var(--mint);text-shadow:0 0 6px var(--mint),0 0 16px rgba(62,240,193,.6)}
+.sign .open{display:block;font:400 46px/1 "Righteous",sans-serif;letter-spacing:.08em;color:var(--pink);text-shadow:0 0 6px var(--pink),0 0 18px rgba(255,61,139,.75),0 0 34px rgba(255,61,139,.45);animation:buzz 7s infinite}
+.sign .sub{display:block;font:700 10px "Nunito",sans-serif;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-top:4px}
+@keyframes buzz{0%,92%,100%{opacity:1}93%{opacity:.35}94%{opacity:1}96%{opacity:.6}97%{opacity:1}}
+.sign.off .board{border-color:#4a4370;box-shadow:none}
+.sign.off .we,.sign.off .open{color:#5c5485;text-shadow:none;animation:none}
+@media (max-width:640px){.hero{grid-template-columns:1fr;gap:6px}.sign{justify-self:center;order:-1;transform:scale(.85);margin:-6px 0 -8px}}
+@media (prefers-reduced-motion:reduce){.sign .open{animation:none}}
 .hero h1{font:400 clamp(34px,6vw,58px)/1.02 "Righteous",sans-serif;margin:0 0 10px;color:var(--head)}
 .hero h1 .glow{color:var(--pink);text-shadow:0 0 18px rgba(255,61,139,.55)}
 .hero p{color:var(--muted);font-size:18px;margin:0;max-width:640px}
@@ -111,14 +125,19 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
 <body>
 <header class="top"><div class="wrap bar">
   <a class="logo" href="/" aria-label="The Kitchen home"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 7c4 10 14 15 14 29a14 14 0 0 1-28 0c0-7 4-11 7-15 1 5 3 7 6 8-2-8 0-15 1-22z" fill="none" stroke="#ff3d8b" stroke-width="4" stroke-linejoin="round"/><path d="M32 38c2 3 6 5 6 10a6 6 0 0 1-12 0c0-3 2-5 3-7 1 2 2 3 3 3z" fill="none" stroke="#3ef0c1" stroke-width="3" stroke-linejoin="round"/></svg><div><b>The <span>Kitchen</span></b><small>Cook up your own token</small></div></a>
-  <nav><a href="#fresh">Fresh tokens</a><a href="#how">How it works</a><a href="/cooked/">The original COOKED</a><a href="https://reefdex.fyi" target="_blank" rel="noopener">Reef</a><a class="cta" href="#cook">Cook a token</a></nav>
+  <nav><a href="#fresh">Fresh tokens</a><a href="#how">How it works</a><a class="hm" href="/cooked/">The original COOKED</a><a class="hm" href="https://reefdex.fyi" target="_blank" rel="noopener">Reef</a><a class="cta" href="#cook">Cook a token</a></nav>
 </div></header>
 
 <main class="wrap">
   <div class="hero">
+    <div>
     <h1>Cook up your <span class="glow">own token.</span></h1>
     <p>Name it, set the supply, press Cook. A plain, safe token lands in your wallet in one transaction, ready to go onto Reef. No code.</p>
     <div class="chips"><span class="chip"><b>5,000 BDAG</b> per token</span><span class="chip">No owner · no tax · no mint</span><span class="chip">BlockDAG chain 1404</span></div>
+    </div>
+    <div class="sign off" id="sign" role="img" aria-label="Opening soon">
+      <div class="board"><span class="we" id="signWe">Sorry,</span><span class="open" id="signOpen">CLOSED</span><span class="sub" id="signSub">checking the kitchen…</span></div>
+    </div>
   </div>
 
   <section id="cook">
@@ -220,7 +239,15 @@ const CFG = {
   const short = (a) => a.slice(0, 6) + "…" + a.slice(-4);
   const fmtInt = (n) => BigInt(n).toLocaleString("en-US");
   function msg(html, kind) { $("msg").className = "msg " + (kind || ""); $("msg").innerHTML = html || ""; }
-  function setState(t, k) { $("state").textContent = t; $("statePill").className = "pill " + (k || ""); }
+  function setState(t, k) {
+    $("state").textContent = t; $("statePill").className = "pill " + (k || "");
+    const open = k === "ok";
+    $("sign").classList.toggle("off", !open);
+    $("signWe").textContent = open ? "We're" : "Sorry,";
+    $("signOpen").textContent = open ? "OPEN" : "CLOSED";
+    $("signSub").textContent = open ? "Kitchen open 24/7" : t === "Opening soon" ? "opening soon" : "back shortly";
+    $("sign").setAttribute("aria-label", open ? "We're open" : "Sorry, we're closed: " + t);
+  }
 
   // ---------- the same rules as the contract ----------
   function checkName(v) {
