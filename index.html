@@ -12,11 +12,11 @@
 <meta name="theme-color" content="#0d0b1f">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230d0b1f'/%3E%3Cpath d='M32 9c4 10 13 14 13 27a13 13 0 0 1-26 0c0-7 4-11 7-15 1 5 3 7 6 8-2-8 0-14 0-20z' fill='none' stroke='%23ff3d8b' stroke-width='4' stroke-linejoin='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Righteous&family=Nunito:wght@400;600;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Righteous&family=Yellowtail&family=Nunito:wght@400;600;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.17.0/ethers.umd.min.js"></script>
 <style>
 :root{--bg:#0d0b1f;--card:#17142e;--raised:#211d40;--line:rgba(190,170,255,.14);--line2:rgba(190,170,255,.26);
-  --text:#f4f1ff;--muted:#b7aed6;--pink:#ff3d8b;--pink-ink:#22051a;--mint:#3ef0c1;--mint-ink:#03251c;--violet:#8b6cff;--warn:#ffb15c;--bad:#ff6b6b}
+  --text:#d9d0f7;--muted:#9f95c9;--head:#c9bcf7;--pink:#ff3d8b;--pink-ink:#22051a;--mint:#3ef0c1;--mint-ink:#03251c;--violet:#8b6cff;--warn:#ffb15c;--bad:#ff6b6b}
 :root{color-scheme:dark}
 *{box-sizing:border-box}
 html{overflow-x:clip}
@@ -24,23 +24,45 @@ body{margin:0;background:var(--bg);color:var(--text);font:400 16px/1.6 "Nunito",
   background-image:radial-gradient(50% 35% at 85% -5%,rgba(255,61,139,.18),transparent 70%),radial-gradient(45% 30% at 0% 100%,rgba(62,240,193,.12),transparent 70%);background-attachment:fixed;background-repeat:no-repeat}
 a{color:var(--mint)}
 .wrap{max-width:1040px;margin:0 auto;padding:0 16px}
-header.top{border-bottom:1px solid var(--line)}
+header.top{position:sticky;top:0;z-index:20;background:rgba(13,11,31,.82);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
 header.top::before{content:"";display:block;height:3px;background:linear-gradient(90deg,transparent,var(--pink) 25%,var(--violet) 55%,var(--mint) 80%,transparent)}
 .bar{display:flex;align-items:center;gap:14px;padding:12px 0;flex-wrap:wrap}
-.logo{font:400 26px/1 "Righteous",sans-serif;color:var(--pink);text-decoration:none;text-shadow:0 0 12px rgba(255,61,139,.55)}
-.logo small{display:block;font:600 11px "Nunito",sans-serif;color:var(--muted);text-shadow:none;letter-spacing:.12em;text-transform:uppercase;margin-top:4px}
-nav{display:flex;gap:4px;margin-left:auto;flex-wrap:wrap}
-nav a{color:var(--muted);text-decoration:none;font-weight:600;font-size:14px;padding:7px 11px;border-radius:10px}
-nav a:hover{background:var(--raised);color:var(--text)}
-.hero{padding:30px 0 10px}
-.hero h1{font:400 clamp(34px,6vw,58px)/1.02 "Righteous",sans-serif;margin:0 0 10px}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.logo svg{width:34px;height:34px;flex:none;filter:drop-shadow(0 0 6px rgba(255,61,139,.55))}
+.logo b{display:block;font:400 22px/1 "Righteous",sans-serif;color:var(--pink);letter-spacing:.02em;text-shadow:0 0 6px rgba(255,61,139,.45)}
+.logo b span{color:var(--mint);text-shadow:0 0 6px rgba(62,240,193,.4)}
+.logo small{display:block;font:700 10px "Nunito",sans-serif;color:var(--muted);letter-spacing:.16em;text-transform:uppercase;margin-top:4px}
+nav{display:flex;gap:2px;margin-left:auto;flex-wrap:wrap;align-items:center}
+nav a{color:var(--muted);text-decoration:none;font-weight:700;font-size:14px;padding:7px 11px;border-radius:10px;position:relative}
+nav a::after{content:"";position:absolute;left:11px;right:11px;bottom:3px;height:2px;border-radius:2px;background:var(--pink);box-shadow:0 0 6px var(--pink);transform:scaleX(0);transition:transform .2s}
+nav a:hover{color:var(--head)} nav a:hover::after{transform:scaleX(1)}
+nav a.cta{border:1px solid var(--pink);color:var(--pink);margin-left:6px;box-shadow:0 0 10px rgba(255,61,139,.2) inset}
+nav a.cta::after{display:none} nav a.cta:hover{background:var(--pink);color:var(--pink-ink)}
+@media (max-width:640px){header.top{position:static}nav{flex-wrap:nowrap;overflow-x:auto;width:100%;margin-left:0;scrollbar-width:none}nav::-webkit-scrollbar{display:none}nav a{white-space:nowrap;flex:none}nav a:not(.cta){padding:6px 8px;font-size:13px}nav a.cta{margin-left:auto}nav a.hm{display:none}}
+@media (prefers-reduced-motion:reduce){nav a::after{transition:none}}
+.hero{padding:30px 0 10px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px;align-items:center}
+/* Diner "We're open" sign: lit when the Kitchen contract answers, dark otherwise */
+.sign{position:relative;padding-top:26px;justify-self:end}
+.sign::before,.sign::after{content:"";position:absolute;top:0;width:2px;height:26px;background:linear-gradient(var(--line2),#6d6496)}
+.sign::before{left:28%} .sign::after{right:28%}
+.sign .board{border:3px solid var(--pink);border-radius:18px;padding:10px 22px 12px;text-align:center;background:rgba(13,11,31,.65);
+  box-shadow:0 0 10px rgba(255,61,139,.55),inset 0 0 10px rgba(255,61,139,.35);transform:rotate(-3deg)}
+.sign .we{display:block;font:400 30px/1 "Yellowtail",cursive;color:var(--mint);text-shadow:0 0 6px var(--mint),0 0 16px rgba(62,240,193,.6)}
+.sign .open{display:block;font:400 46px/1 "Righteous",sans-serif;letter-spacing:.08em;color:var(--pink);text-shadow:0 0 6px var(--pink),0 0 18px rgba(255,61,139,.75),0 0 34px rgba(255,61,139,.45);animation:buzz 7s infinite}
+.sign .sub{display:block;font:700 10px "Nunito",sans-serif;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-top:4px}
+@keyframes buzz{0%,92%,100%{opacity:1}93%{opacity:.35}94%{opacity:1}96%{opacity:.6}97%{opacity:1}}
+.sign.off .board{border-color:#4a4370;box-shadow:none}
+.sign.off .we,.sign.off .open{color:#5c5485;text-shadow:none;animation:none}
+@media (max-width:640px){.hero{grid-template-columns:1fr;gap:6px}.sign{justify-self:center;order:-1;transform:scale(.85);margin:-6px 0 -8px}}
+@media (prefers-reduced-motion:reduce){.sign .open{animation:none}}
+.hero h1{font:400 clamp(34px,6vw,58px)/1.02 "Righteous",sans-serif;margin:0 0 10px;color:var(--head)}
 .hero h1 .glow{color:var(--pink);text-shadow:0 0 18px rgba(255,61,139,.55)}
 .hero p{color:var(--muted);font-size:18px;margin:0;max-width:640px}
 .chips{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0 0}
 .chip{border:1px solid var(--line2);border-radius:999px;padding:4px 12px;font-size:13px;color:var(--muted)}
 .chip b{color:var(--text)}
-section{margin:30px 0}
-h2{font:400 26px "Righteous",sans-serif;margin:0 0 4px}
+section{margin:30px 0;scroll-margin-top:80px}
+h2{font:400 26px "Righteous",sans-serif;margin:0 0 4px;color:var(--mint)}
 .sub{color:var(--muted);margin:0 0 14px;font-size:15px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:20px}
 .grid2{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:16px}
@@ -52,7 +74,7 @@ input[type=text]:focus{outline:2px solid var(--pink);outline-offset:1px}
 .field{margin:0 0 14px}
 .hint{font-size:13px;color:var(--muted);margin-top:4px;min-height:1.2em}
 .hint.bad{color:var(--bad)} .hint.ok{color:var(--mint)}
-.btn{display:block;width:100%;border:0;border-radius:14px;padding:14px 18px;font:800 17px "Nunito",sans-serif;cursor:pointer;background:var(--pink);color:var(--pink-ink);box-shadow:0 0 22px rgba(255,61,139,.35)}
+.btn{display:block;width:100%;border:0;border-radius:14px;padding:14px 18px;font:800 17px "Nunito",sans-serif;cursor:pointer;background:var(--pink);color:var(--pink-ink);box-shadow:0 0 14px rgba(255,61,139,.25)}
 .btn:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
 .btn.alt{background:transparent;color:var(--text);border:1px solid var(--line2);box-shadow:none}
 .btn.mint{background:var(--mint);color:var(--mint-ink);box-shadow:0 0 22px rgba(62,240,193,.3)}
@@ -102,15 +124,20 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
 </head>
 <body>
 <header class="top"><div class="wrap bar">
-  <a class="logo" href="/">The Kitchen<small>Cook up your own token</small></a>
-  <nav><a href="#cook">Make a token</a><a href="#fresh">Fresh tokens</a><a href="#how">How it works</a><a href="/cooked/">The original COOKED</a><a href="https://reefdex.fyi" target="_blank" rel="noopener">Reef</a></nav>
+  <a class="logo" href="/" aria-label="The Kitchen home"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 7c4 10 14 15 14 29a14 14 0 0 1-28 0c0-7 4-11 7-15 1 5 3 7 6 8-2-8 0-15 1-22z" fill="none" stroke="#ff3d8b" stroke-width="4" stroke-linejoin="round"/><path d="M32 38c2 3 6 5 6 10a6 6 0 0 1-12 0c0-3 2-5 3-7 1 2 2 3 3 3z" fill="none" stroke="#3ef0c1" stroke-width="3" stroke-linejoin="round"/></svg><div><b>The <span>Kitchen</span></b><small>Cook up your own token</small></div></a>
+  <nav><a href="#fresh">Fresh tokens</a><a href="#how">How it works</a><a class="hm" href="/cooked/">The original COOKED</a><a class="hm" href="https://reefdex.fyi" target="_blank" rel="noopener">Reef</a><a class="cta" href="#cook">Cook a token</a></nav>
 </div></header>
 
 <main class="wrap">
   <div class="hero">
+    <div>
     <h1>Cook up your <span class="glow">own token.</span></h1>
     <p>Name it, set the supply, press Cook. A plain, safe token lands in your wallet in one transaction, ready to go onto Reef. No code.</p>
     <div class="chips"><span class="chip"><b>5,000 BDAG</b> per token</span><span class="chip">No owner · no tax · no mint</span><span class="chip">BlockDAG chain 1404</span></div>
+    </div>
+    <div class="sign off" id="sign" role="img" aria-label="Opening soon">
+      <div class="board"><span class="we" id="signWe">Sorry,</span><span class="open" id="signOpen">CLOSED</span><span class="sub" id="signSub">checking the kitchen…</span></div>
+    </div>
   </div>
 
   <section id="cook">
@@ -212,7 +239,15 @@ const CFG = {
   const short = (a) => a.slice(0, 6) + "…" + a.slice(-4);
   const fmtInt = (n) => BigInt(n).toLocaleString("en-US");
   function msg(html, kind) { $("msg").className = "msg " + (kind || ""); $("msg").innerHTML = html || ""; }
-  function setState(t, k) { $("state").textContent = t; $("statePill").className = "pill " + (k || ""); }
+  function setState(t, k) {
+    $("state").textContent = t; $("statePill").className = "pill " + (k || "");
+    const open = k === "ok";
+    $("sign").classList.toggle("off", !open);
+    $("signWe").textContent = open ? "We're" : "Sorry,";
+    $("signOpen").textContent = open ? "OPEN" : "CLOSED";
+    $("signSub").textContent = open ? "Kitchen open 24/7" : t === "Opening soon" ? "opening soon" : "back shortly";
+    $("sign").setAttribute("aria-label", open ? "We're open" : "Sorry, we're closed: " + t);
+  }
 
   // ---------- the same rules as the contract ----------
   function checkName(v) {
