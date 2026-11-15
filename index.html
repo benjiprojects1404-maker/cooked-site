@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>The Kitchen · Cook up your own token on BlockDAG</title>
-<meta name="description" content="Make your own token on BlockDAG in one transaction, no code. Plain, fixed supply, no owner, no tax, no mint. Then straight onto Reef.">
+<meta name="description" content="Make your own token on BlockDAG and its Reef pool in one transaction, no code. Plain, fixed supply, no owner, no tax, no mint, and the starting liquidity can never be pulled.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="The Kitchen · Cook up your own token">
-<meta property="og:description" content="Name it, set the supply, press Cook. A plain, safe token in your wallet in one transaction, then straight onto Reef.">
+<meta property="og:description" content="Name it, set the supply, press Cook. Your token and its Reef pool in one transaction, with the starting liquidity locked forever.">
 <meta name="twitter:card" content="summary">
 <meta name="theme-color" content="#0d0b1f">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230d0b1f'/%3E%3Cpath d='M32 9c4 10 13 14 13 27a13 13 0 0 1-26 0c0-7 4-11 7-15 1 5 3 7 6 8-2-8 0-14 0-20z' fill='none' stroke='%23ff3d8b' stroke-width='4' stroke-linejoin='round'/%3E%3C/svg%3E">
@@ -71,6 +71,11 @@ label.f{display:block;font-weight:800;font-size:14px;margin:0 0 6px}
 label.f span{font-weight:400;color:var(--muted)}
 input[type=text]{width:100%;background:var(--raised);border:1px solid var(--line2);color:var(--text);border-radius:12px;padding:12px 14px;font:600 16px "Nunito",sans-serif}
 input[type=text]:focus{outline:2px solid var(--pink);outline-offset:1px}
+input[type=range]{width:100%;accent-color:var(--pink)}
+.rangehead{display:flex;justify-content:space-between;align-items:baseline}
+.rangehead output{font:400 20px "Righteous",sans-serif;color:var(--pink)}
+.ticket hr{border:0;border-top:1px dashed var(--line2);margin:12px 0}
+.total{font-weight:800;color:var(--mint)}
 .field{margin:0 0 14px}
 .hint{font-size:13px;color:var(--muted);margin-top:4px;min-height:1.2em}
 .hint.bad{color:var(--bad)} .hint.ok{color:var(--mint)}
@@ -132,8 +137,8 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
   <div class="hero">
     <div>
     <h1>Cook up your <span class="glow">own token.</span></h1>
-    <p>Name it, set the supply, press Cook. A plain, safe token lands in your wallet in one transaction, ready to go onto Reef. No code.</p>
-    <div class="chips"><span class="chip"><b>5,000 BDAG</b> per token</span><span class="chip">No owner · no tax · no mint</span><span class="chip">BlockDAG chain 1404</span></div>
+    <p>Name it, set the supply, press Cook. Your token and its own Reef pool are made in one transaction, and the starting liquidity is locked forever. No code.</p>
+    <div class="chips"><span class="chip">Served on <b>Reef</b> from block one</span><span class="chip">Starting liquidity locked forever</span><span class="chip">No owner · no tax · no mint</span></div>
     </div>
     <div class="sign off" id="sign" role="img" aria-label="Opening soon">
       <div class="board"><span class="we" id="signWe">Sorry,</span><span class="open" id="signOpen">CLOSED</span><span class="sub" id="signSub">checking the kitchen…</span></div>
@@ -146,11 +151,13 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
         <div style="display:flex;align-items:center;gap:10px;justify-content:space-between;flex-wrap:wrap;margin-bottom:14px"><h2 style="margin:0">Your order</h2><span class="pill" id="statePill"><i></i><span id="state">Loading…</span></span></div>
         <div class="field"><label class="f" for="fName">Name <span>(up to 32 characters)</span></label><input type="text" id="fName" maxlength="40" placeholder="Midnight Pancake" autocomplete="off"><div class="hint" id="hName"></div></div>
         <div class="field"><label class="f" for="fSym">Ticker <span>(1 to 11 letters or numbers)</span></label><input type="text" id="fSym" maxlength="11" placeholder="PANCAKE" autocomplete="off" spellcheck="false"><div class="hint" id="hSym"></div></div>
-        <div class="field"><label class="f" for="fSup">Total supply <span>(whole tokens, all sent to your wallet)</span></label><input type="text" id="fSup" inputmode="numeric" placeholder="1,000,000,000" autocomplete="off"><div class="hint" id="hSup"></div></div>
-        <label class="ack"><input type="checkbox" id="ack"> I understand the 5,000 BDAG fee isn't refundable, the token is mine and nobody else's responsibility, and making a token doesn't give it any value. The contract is unaudited.</label>
+        <div class="field"><label class="f" for="fSup">Total supply <span>(whole tokens)</span></label><input type="text" id="fSup" inputmode="numeric" placeholder="1,000,000,000" autocomplete="off"><div class="hint" id="hSup"></div></div>
+        <div class="field"><div class="rangehead"><label class="f" for="fPct">Into the Reef pool <span>(the rest comes to you)</span></label><output id="oPct">50%</output></div><input type="range" id="fPct" min="10" max="100" step="5" value="50"><div class="hint" id="hPct"></div></div>
+        <div class="field"><label class="f" for="fLiq">Starting liquidity <span>(BDAG paired with your tokens; at least <span id="minTxt">10,000</span>)</span></label><input type="text" id="fLiq" inputmode="decimal" value="10,000" autocomplete="off"><div class="hint" id="hLiq"></div></div>
+        <label class="ack"><input type="checkbox" id="ack"> I understand the fee and the starting liquidity can't be taken back (the pool's LP is burned), the token is mine and nobody else's responsibility, and making a token doesn't give it any value. The contract is unaudited.</label>
         <button class="btn" id="btnConnect" type="button">Connect wallet</button>
         <button class="btn alt hide" id="btnSwitch" type="button">Switch to BlockDAG (chain 1404)</button>
-        <button class="btn hide" id="btnCook" type="button" disabled>Cook it for 5,000 BDAG</button>
+        <button class="btn hide" id="btnCook" type="button" disabled>Cook and serve</button>
         <div class="msg" id="msg" role="status"></div>
       </div>
       <div>
@@ -158,10 +165,12 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
           <div class="small" style="font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)">Order ticket</div>
           <div class="tk" id="pSym">TICKER</div>
           <div class="nm" id="pName">Your token's name</div>
-          <dl><dt>Supply</dt><dd id="pSup">–</dd><dt>Decimals</dt><dd>18</dd><dt>Goes to</dt><dd id="pTo">your wallet</dd><dt>Fee</dt><dd>5,000 BDAG</dd></dl>
+          <dl><dt>Supply</dt><dd id="pSup">–</dd><dt>Into the Reef pool</dt><dd id="pPool">–</dd><dt>To you</dt><dd id="pYou">–</dd><dt>Starting price</dt><dd id="pPrice">–</dd><dt>Starting value</dt><dd id="pCap">–</dd></dl>
+          <hr><dl style="margin:0"><dt>Starting liquidity</dt><dd id="pLiq">–</dd><dt>Kitchen fee</dt><dd id="pFee">5,000 BDAG</dd><dt class="total">You pay</dt><dd class="total" id="pTotal">–</dd></dl>
         </div>
         <ul class="safe">
-          <li>The whole supply is yours, in one go</li>
+          <li>Trades on Reef the moment it's made</li>
+          <li>Starting liquidity locked forever (LP burned)</li>
           <li>No owner: nobody can mint more, ever</li>
           <li>No tax, no pause, no blocked wallets</li>
           <li>Shows clean on Reef's safety report</li>
@@ -176,16 +185,16 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
       <p style="margin:6px 0 0" id="servedLine"></p>
       <div class="addr"><code id="servedAddr"></code><button class="small-btn" id="copyAddr" type="button">Copy</button><button class="small-btn" id="watchBtn" type="button">Add to wallet</button></div>
       <ol class="next">
-        <li><div><b>Create its pool on Reef</b><span>Pair it with BDAG so people can trade it. <a id="nPool" href="#" target="_blank" rel="noopener">Open Reef with your token filled in</a></span></div></li>
-        <li><div><b>Lock the liquidity</b><span>Locking your LP shows buyers you can't pull the pool. <a href="https://reefdex.fyi/launch/" target="_blank" rel="noopener">How to lock it</a></span></div></li>
-        <li><div><b>Share your safety report</b><span>Proof it's a clean Kitchen token. <a id="nReport" href="#" target="_blank" rel="noopener">See the report</a></span></div></li>
+        <li><div><b>It's live on Reef</b><span>Your pool is open for trading now. <a id="nTrade" href="#" target="_blank" rel="noopener">Trade it on Reef</a> · <a id="nPair" href="#" target="_blank" rel="noopener">see the pool</a></span></div></li>
+        <li><div><b>Liquidity locked forever</b><span>The pool's LP tokens went to the dead address in the same transaction, so nobody, including you, can pull that liquidity.</span></div></li>
+        <li><div><b>Share your safety report</b><span>Proof it's a clean Kitchen token with locked liquidity. <a id="nReport" href="#" target="_blank" rel="noopener">See the report</a></span></div></li>
       </ol>
     </div>
   </section>
 
   <section id="fresh">
     <h2>Fresh out of the oven</h2>
-    <p class="sub">The newest tokens made here. Same name or ticker as another token? Always check the address.</p>
+    <p class="sub">The newest tokens made here, all trading on Reef. Same name or ticker as another token? Always check the address.</p>
     <div class="fresh" id="freshList"><p class="empty">Loading…</p></div>
   </section>
 
@@ -193,28 +202,28 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
     <h2>How it works</h2>
     <p class="sub">One transaction, one contract, nothing hidden.</p>
     <div class="how">
-      <div class="card"><h3>1. Order</h3><p>Pick a name, a ticker and a supply. The Kitchen checks them as you type: tickers are letters and numbers only, and well-known ones like BDAG, REEF and USDT are reserved.</p></div>
-      <div class="card"><h3>2. Cook</h3><p>Pay 5,000 BDAG. The Kitchen contract makes your token and sends the whole supply to your wallet in the same transaction. The fee goes to Reef's treasury.</p></div>
-      <div class="card"><h3>3. Serve</h3><p>Open Reef with your token filled in, add liquidity against BDAG, lock it, and share your safety report. Your token, your call.</p></div>
+      <div class="card"><h3>1. Order</h3><p>Pick a name, a ticker and a supply, how much goes into the pool and how much BDAG to pair it with. That sets the starting price, shown before you confirm.</p></div>
+      <div class="card"><h3>2. Cook</h3><p>One transaction makes your token, opens its TOKEN/BDAG pool on Reef and burns the pool's LP. The rest of the supply comes to you; the 5,000 BDAG fee goes to Reef's treasury.</p></div>
+      <div class="card"><h3>3. Serve</h3><p>It's trading on Reef straight away, with liquidity nobody can pull. Share the safety report. You're free to list it anywhere else later too.</p></div>
     </div>
   </section>
 
   <section>
     <div class="card fine">
       <p><b style="color:var(--text)">Unaudited.</b> The Kitchen contract has tests and an internal review, but no independent audit. Source on <a href="https://github.com/benjiprojects1404-maker/reef-dex-site/tree/main/contracts/contracts/kitchen" target="_blank" rel="noopener">GitHub</a>.</p>
-      <p><b style="color:var(--text)">Your token, your responsibility.</b> The Kitchen only makes the token. It doesn't list, promote or vouch for anything made here, and a token made here can still be sold by its creator.</p>
+      <p><b style="color:var(--text)">Your token, your responsibility.</b> The Kitchen makes the token and its first Reef pool, nothing more. It doesn't promote or vouch for anything made here, and a creator can still sell the part of the supply they kept.</p>
       <p style="margin:0"><b style="color:var(--text)">Not advice.</b> Nothing here is financial, legal or tax advice. Check what applies to you where you live before launching a token.</p>
     </div>
   </section>
 </main>
-<footer><div class="wrap">Built by <a href="https://benjiprojects1404-services.pages.dev" target="_blank" rel="noopener">Undercurrent Works</a>. Every token goes on <a href="https://reefdex.fyi" target="_blank" rel="noopener">Reef</a>. Home of <a href="/cooked/">the original COOKED</a>.</div></footer>
+<footer><div class="wrap">Built by <a href="https://benjiprojects1404-services.pages.dev" target="_blank" rel="noopener">Undercurrent Works</a>. Every token is served on <a href="https://reefdex.fyi" target="_blank" rel="noopener">Reef</a> first. Home of <a href="/cooked/">the original COOKED</a>.</div></footer>
 
 <script>
 "use strict";
-// Set `factory` to the deployed KitchenFactory address to open the Kitchen. Until then the form shows "opening soon".
+// Set `factory` to the deployed KitchenServe (v2) address to open the Kitchen. Until then the form shows "opening soon".
 const CFG = {
   chainId: 1404, chainName: "BlockDAG",
-  factory: "0x0E331686ee029EfafFC3a5cFda0ee3c7006F8A98",
+  factory: "0xF30f5E4f46AcAE803815B82CfEC5CD8Fc77eF394", // v2 KitchenServe (v1 KitchenFactory 0x0E331686ee029EfafFC3a5cFda0ee3c7006F8A98 is retired)
   rpcs: ["https://rpc.community.bdag-us.org", "https://rpc.bdagexplorer.com", "https://rpc.dagcore.net"],
   explorer: "https://explorer.east.bdag-us.org",
   reef: "https://reefdex.fyi",
@@ -230,11 +239,11 @@ const CFG = {
 (function () {
   const $ = (id) => document.getElementById(id);
   const RESERVED = ["BDAG", "WBDAG", "REEF", "NOCAP", "COOKED", "USDT", "USDC", "ETH", "WETH", "BTC", "WBTC"];
-  const ABI = ["function cook(string,string,uint256) payable returns (address)", "function fee() view returns (uint256)",
-    "function tokenCount() view returns (uint256)", "function latest(uint256,uint256) view returns (address[])", "function isReserved(string) view returns (bool)",
-    "event TokenCooked(address indexed token, address indexed creator, string name, string symbol, uint256 supply)"];
+  const ABI = ["function cook(string,string,uint256,uint256) payable returns (address,address)", "function fee() view returns (uint256)", "function minLiquidity() view returns (uint256)",
+    "function tokenCount() view returns (uint256)", "function latest(uint256,uint256) view returns (address[])", "function isReserved(string) view returns (bool)", "function pairOf(address) view returns (address)",
+    "event TokenServed(address indexed token, address indexed creator, address indexed pair, string name, string symbol, uint256 supply, uint256 poolTokens, uint256 poolBDAG)"];
   const TOKEN_ABI = ["function name() view returns (string)", "function symbol() view returns (string)", "function totalSupply() view returns (uint256)"];
-  let ro = null, wallet = null, signer = null, account = null, onChain = false, busy = false, fee = null, listening = false;
+  let ro = null, wallet = null, signer = null, account = null, onChain = false, busy = false, fee = null, minLiq = 10000n * 10n ** 18n, listening = false;
   const esc = (t) => String(t).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const short = (a) => a.slice(0, 6) + "…" + a.slice(-4);
   const fmtInt = (n) => BigInt(n).toLocaleString("en-US");
@@ -271,18 +280,40 @@ const CFG = {
     const n = BigInt(s);
     if (n < 1n) return [null, "At least 1."];
     if (n > 10n ** 15n) return [null, "At most 1,000,000,000,000,000 (one quadrillion)."];
-    return [n, `${fmtInt(n)} tokens, all to your wallet.`];
+    return [n, `${fmtInt(n)} tokens.`];
   }
+  function parseBDAG(v) {
+    const s = v.replace(/[,\s_]/g, "");
+    if (!s) return [null, ""];
+    if (!/^\d+(\.\d{1,18})?$/.test(s)) return [null, "A number of BDAG, like 10000."];
+    const w = ethers.parseEther(s);
+    if (w < minLiq) return [null, `At least ${fmtInt(minLiq / 10n ** 18n)} BDAG.`];
+    return [w, "Paired with your tokens in the pool, and locked there for good."];
+  }
+  const fmtNum = (x) => !isFinite(x) || x === 0 ? "–" : x >= 1 ? x.toLocaleString("en-US", { maximumFractionDigits: 2 }) : x.toPrecision(3);
   function form() {
     const name = $("fName").value, sym = $("fSym").value.trim();
     const [nOk, nMsg] = checkName(name), [sOk, sMsg] = checkSym(sym), [sup, supMsg] = parseSupply($("fSup").value);
+    const pct = BigInt($("fPct").value), [liq, liqMsg] = parseBDAG($("fLiq").value);
     const hint = (id, ok, text) => { $(id).textContent = text; $(id).className = "hint " + (text ? (ok ? "ok" : "bad") : ""); };
-    hint("hName", nOk, nMsg); hint("hSym", sOk, sMsg); hint("hSup", sup !== null, supMsg);
+    hint("hName", nOk, nMsg); hint("hSym", sOk, sMsg); hint("hSup", sup !== null, supMsg); hint("hLiq", liq !== null, liqMsg);
+    $("oPct").textContent = pct + "%";
+    hint("hPct", true, pct === 100n ? "All of it into the pool: a pure fair launch, you keep none." : `You keep ${100n - pct}% of the supply.`);
+    $("minTxt").textContent = fmtInt(minLiq / 10n ** 18n);
     $("pName").textContent = name || "Your token's name";
     $("pSym").textContent = sym ? sym : "TICKER";
     $("pSup").textContent = sup !== null ? fmtInt(sup) : "–";
-    $("pTo").textContent = account ? short(account) : "your wallet";
-    return { ok: nOk && sOk && sup !== null, name, sym, sup };
+    const poolT = sup !== null ? (sup * pct) / 100n : null;
+    $("pPool").textContent = poolT !== null ? fmtInt(poolT) + ` (${pct}%)` : `– (${pct}%)`;
+    $("pYou").textContent = poolT !== null ? fmtInt(sup - poolT) : "–";
+    const liqN = liq !== null ? Number(ethers.formatEther(liq)) : 0, price = poolT ? liqN / Number(poolT) : 0;
+    $("pPrice").textContent = price ? fmtNum(price) + " BDAG" : "–";
+    $("pCap").textContent = price && sup !== null ? fmtNum(price * Number(sup)) + " BDAG" : "–";
+    $("pLiq").textContent = liq !== null ? fmtNum(liqN) + " BDAG" : "–";
+    const feeN = fee !== null ? Number(ethers.formatEther(fee)) : 5000;
+    $("pFee").textContent = fmtNum(feeN) + " BDAG";
+    $("pTotal").textContent = liq !== null ? fmtNum(liqN + feeN) + " BDAG" : "–";
+    return { ok: nOk && sOk && sup !== null && liq !== null, name, sym, sup, pct, liq };
   }
 
   // ---------- chain ----------
@@ -297,7 +328,7 @@ const CFG = {
     if (!ro) { setState("Can't reach BlockDAG", "bad"); render(); return; }
     try {
       const f = new ethers.Contract(CFG.factory, ABI, ro);
-      fee = await f.fee();
+      [fee, minLiq] = await Promise.all([f.fee(), f.minLiquidity()]);
       setState("Open", "ok");
       const n = Number(await f.tokenCount());
       renderFresh(n ? await f.latest(0, 12) : []);
@@ -314,15 +345,15 @@ const CFG = {
     }));
     box.innerHTML = rows.map((r) => `<div class="tok"><div class="tk">${esc(r.s)}</div><div class="nm">${esc(r.n)}</div>
       <div class="meta">${fmtInt(r.ts / 10n ** 18n)} supply · <a href="${CFG.explorer}/token/${r.a}" target="_blank" rel="noopener">${short(r.a)}</a></div>
-      <div class="links"><a href="${CFG.reef}/token/?a=${r.a}" target="_blank" rel="noopener">Safety report</a><a href="${CFG.reef}/?from=BDAG&to=${r.a}" target="_blank" rel="noopener">Trade on Reef</a></div></div>`).join("");
+      <div class="links"><a href="${CFG.reef}/?from=BDAG&to=${r.a}" target="_blank" rel="noopener">Trade on Reef</a><a href="${CFG.reef}/token/?a=${r.a}" target="_blank" rel="noopener">Safety report</a></div></div>`).join("");
   }
   function render() {
     const f = form();
     $("btnConnect").classList.toggle("hide", !!account);
     $("btnSwitch").classList.toggle("hide", !account || onChain);
     $("btnCook").classList.toggle("hide", !account || !onChain);
-    const feeTxt = fee !== null ? Number(ethers.formatEther(fee)).toLocaleString("en-US") + " BDAG" : "5,000 BDAG";
-    $("btnCook").textContent = !CFG.factory ? "The Kitchen opens soon" : busy ? "Cooking…" : `Cook it for ${feeTxt}`;
+    const total = f.liq !== null && fee !== null ? fmtNum(Number(ethers.formatEther(f.liq + fee))) + " BDAG" : "";
+    $("btnCook").textContent = !CFG.factory ? "The Kitchen opens soon" : busy ? "Cooking…" : total ? `Cook and serve for ${total}` : "Cook and serve";
     $("btnCook").disabled = !CFG.factory || busy || !f.ok || !$("ack").checked || fee === null;
   }
   async function connect() {
@@ -357,8 +388,8 @@ const CFG = {
   function errText(e) {
     if (e && (e.code === "ACTION_REJECTED" || e.code === 4001)) return "Request cancelled in your wallet.";
     const m = (e && (e.reason || e.shortMessage || (e.info && e.info.error && e.info.error.message) || e.message)) || "Something went wrong.";
-    if (/insufficient funds/i.test(m)) return "Not enough BDAG for the fee plus gas.";
-    const map = { ReservedSymbol: "That ticker is reserved.", BadSymbol: "That ticker isn't allowed.", BadName: "That name isn't allowed.", BadSupply: "That supply isn't allowed.", WrongFee: "The fee changed. Reload the page and try again." };
+    if (/insufficient funds/i.test(m)) return "Not enough BDAG for the fee, the starting liquidity and gas.";
+    const map = { ReservedSymbol: "That ticker is reserved.", BadSymbol: "That ticker isn't allowed.", BadName: "That name isn't allowed.", BadSupply: "That supply isn't allowed.", BadPoolShare: "The pool share must be 10% to 100%.", NotEnoughBDAG: "The fee or the minimum liquidity changed. Reload the page and try again." };
     for (const k in map) if (m.includes(k)) return map[k];
     return m.replace(/^execution reverted:?\s*/i, "");
   }
@@ -370,31 +401,34 @@ const CFG = {
       const k = new ethers.Contract(CFG.factory, ABI, signer);
       if (await new ethers.Contract(CFG.factory, ABI, ro).isReserved(f.sym)) throw new Error("ReservedSymbol");
       fee = await k.fee();
-      await k.cook.staticCall(f.name, f.sym, f.sup, { value: fee });
-      msg("Confirm in your wallet…");
-      const tx = await k.cook(f.name, f.sym, f.sup, { value: fee });
+      const value = fee + f.liq;
+      await k.cook.staticCall(f.name, f.sym, f.sup, f.pct, { value });
+      msg(`Confirm in your wallet: ${fmtNum(Number(ethers.formatEther(value)))} BDAG in total…`);
+      const tx = await k.cook(f.name, f.sym, f.sup, f.pct, { value });
       msg(`Cooking… <a href="${CFG.explorer}/tx/${tx.hash}" target="_blank" rel="noopener">View transaction</a>`);
       const r = await tx.wait();
       if (!r || r.status !== 1) throw new Error("The transaction failed on-chain.");
-      const ev = r.logs.map((l) => { try { return k.interface.parseLog(l); } catch (e) { return null; } }).find((e) => e && e.name === "TokenCooked");
-      const addr = ev ? ev.args.token : null;
+      const ev = r.logs.map((l) => { try { return k.interface.parseLog(l); } catch (e) { return null; } }).find((e) => e && e.name === "TokenServed");
       msg(`Done. <a href="${CFG.explorer}/tx/${tx.hash}" target="_blank" rel="noopener">View transaction</a>`, "ok");
-      if (addr) served(addr, f);
+      if (ev) served(ev.args.token, ev.args.pair, f);
       load();
     } catch (e) { msg(errText(e), "err"); }
     finally { busy = false; render(); }
   }
-  function served(addr, f) {
-    $("servedLine").innerHTML = `<b>${esc(f.name)}</b> (${esc(f.sym)}) is in your wallet: ${fmtInt(f.sup)} tokens.`;
+  function served(addr, pair, f) {
+    const kept = f.sup - (f.sup * f.pct) / 100n;
+    $("servedLine").innerHTML = `<b>${esc(f.name)}</b> (${esc(f.sym)}) is live on Reef with ${fmtInt((f.sup * f.pct) / 100n)} tokens and ${fmtNum(Number(ethers.formatEther(f.liq)))} BDAG in its pool${kept > 0n ? `, and ${fmtInt(kept)} tokens are in your wallet` : ""}.`;
     $("servedAddr").textContent = addr;
-    $("nPool").href = `${CFG.reef}/?add=${addr}`;
+    $("nTrade").href = `${CFG.reef}/?from=BDAG&to=${addr}`;
+    $("nPair").href = `${CFG.explorer}/address/${pair}`;
     $("nReport").href = `${CFG.reef}/token/?a=${addr}`;
     $("copyAddr").onclick = () => navigator.clipboard && navigator.clipboard.writeText(addr).then(() => { $("copyAddr").textContent = "Copied"; setTimeout(() => ($("copyAddr").textContent = "Copy"), 1500); });
     $("watchBtn").onclick = () => window.ethereum && window.ethereum.request({ method: "wallet_watchAsset", params: { type: "ERC20", options: { address: addr, symbol: f.sym.slice(0, 11), decimals: 18 } } }).catch(() => {});
     $("servedBox").classList.remove("hide");
     $("servedBox").scrollIntoView({ behavior: "smooth", block: "start" });
   }
-  ["fName", "fSym", "fSup"].forEach((id) => $(id).addEventListener("input", render));
+  ["fName", "fSym", "fSup", "fPct", "fLiq"].forEach((id) => $(id).addEventListener("input", render));
+  $("fLiq").addEventListener("blur", () => { const s = $("fLiq").value.replace(/[,\s_]/g, ""); if (/^\d+$/.test(s)) { $("fLiq").value = fmtInt(BigInt(s)); render(); } });
   $("fSup").addEventListener("blur", () => { const [n] = parseSupply($("fSup").value); if (n !== null) { $("fSup").value = fmtInt(n); render(); } });
   $("ack").addEventListener("change", render);
   $("btnConnect").onclick = connect; $("btnSwitch").onclick = switchNet; $("btnCook").onclick = cook;
