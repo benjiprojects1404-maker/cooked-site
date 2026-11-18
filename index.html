@@ -28,6 +28,21 @@
 html{overflow-x:clip}
 body{margin:0;background:var(--bg);color:var(--text);font:400 16px/1.6 "Nunito",system-ui,-apple-system,"Segoe UI",sans-serif;
   background-image:radial-gradient(50% 35% at 85% -5%,rgba(255,61,139,.18),transparent 70%),radial-gradient(45% 30% at 0% 100%,rgba(62,240,193,.12),transparent 70%);background-attachment:fixed;background-repeat:no-repeat}
+/* the kitchen behind everything: black-and-white photo, tinted into the diner's purple night */
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:linear-gradient(180deg,rgba(13,11,31,.55),rgba(13,11,31,.72) 45%,rgba(13,11,31,.94) 85%),
+    radial-gradient(70% 55% at 50% 30%,transparent,rgba(13,11,31,.6)),
+    url("assets/kitchen-wide.webp") center 30%/cover no-repeat;filter:saturate(.9)}
+@media (max-aspect-ratio:4/5){body::before{background:linear-gradient(180deg,rgba(13,11,31,.5),rgba(13,11,31,.74) 45%,rgba(13,11,31,.95) 85%),
+    radial-gradient(80% 50% at 60% 28%,transparent,rgba(13,11,31,.6)),
+    url("assets/kitchen-tall.webp") 60% 20%/cover no-repeat}}
+/* brushed stainless steel for the counters (cards); fields stay solid so they're easy to read */
+.card,.tok{background:
+    linear-gradient(115deg,rgba(255,255,255,0) 30%,rgba(255,255,255,.07) 46%,rgba(255,255,255,0) 60%),
+    repeating-linear-gradient(90deg,rgba(255,255,255,.022) 0 1px,rgba(0,0,0,.03) 1px 3px,rgba(255,255,255,.012) 3px 4px),
+    linear-gradient(180deg,#34363d,#24262c 55%,#1c1d22)!important;
+  border:1px solid rgba(255,255,255,.12)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.14),inset 0 -1px 0 rgba(0,0,0,.4),0 10px 30px rgba(0,0,0,.35)}
+.card input[type=text],.card select{background:#15161a;border-color:rgba(255,255,255,.16)}
 a{color:var(--mint)}
 .wrap{max-width:1040px;margin:0 auto;padding:0 16px}
 header.top{position:sticky;top:0;z-index:20;background:rgba(13,11,31,.82);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
