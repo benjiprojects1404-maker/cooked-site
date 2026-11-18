@@ -43,6 +43,14 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
     linear-gradient(180deg,#34363d,#24262c 55%,#1c1d22)!important;
   border:1px solid rgba(255,255,255,.12)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.14),inset 0 -1px 0 rgba(0,0,0,.4),0 10px 30px rgba(0,0,0,.35)}
 .card input[type=text],.card select{background:#15161a;border-color:rgba(255,255,255,.16)}
+.chainpick{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 14px}
+.chainpick .lbl{font:800 12px "Nunito",sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-right:4px}
+.chainpick button{display:flex;flex-direction:column;align-items:flex-start;gap:1px;padding:9px 14px;border-radius:14px;cursor:pointer;
+  background:rgba(13,11,31,.72);border:1px solid var(--line2);color:var(--text);font:700 15px "Nunito",sans-serif;text-align:left}
+.chainpick button small{font-weight:600;font-size:11.5px;color:var(--muted)}
+.chainpick button[aria-checked=true]{border-color:var(--mint);box-shadow:0 0 0 1px var(--mint),0 0 18px rgba(62,240,193,.25)}
+.chainpick button:disabled{opacity:.55;cursor:not-allowed}
+body:not(.on-base) .only-base,body.on-base .only-bdag{display:none!important}
 a{color:var(--mint)}
 .wrap{max-width:1040px;margin:0 auto;padding:0 16px}
 header.top{position:sticky;top:0;z-index:20;background:rgba(13,11,31,.82);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
@@ -163,8 +171,8 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
   <div class="hero">
     <div>
     <h1>Cook up your <span class="glow">own token.</span></h1>
-    <p>Name it, set the supply, press Cook. Your token and its own Reef pool are made in one transaction, and the starting liquidity is locked forever. No code.</p>
-    <div class="chips"><span class="chip">Served on <b>Reef</b> from block one</span><span class="chip">Starting liquidity locked forever</span><span class="chip">No owner · no tax · no mint</span></div>
+    <p>Name it, set the supply, press Cook. Your token and its own <span class="c-dex">Reef</span> pool are made in one transaction, and the starting liquidity is locked forever. No code.</p>
+    <div class="chips"><span class="chip">Served on <b class="c-dex">Reef</b> from block one</span><span class="chip">Starting liquidity locked forever</span><span class="chip">No owner · no tax · no mint</span></div>
     </div>
     <div class="sign off" id="sign" role="img" aria-label="Opening soon">
       <div class="board"><span class="we" id="signWe">Sorry,</span><span class="open" id="signOpen">CLOSED</span><span class="sub" id="signSub">checking the kitchen…</span></div>
@@ -172,14 +180,19 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
   </div>
 
   <section id="cook">
+    <div class="chainpick" role="radiogroup" aria-label="Launch on">
+      <span class="lbl">Launch on</span>
+      <button type="button" role="radio" data-chain="bdag" aria-checked="true"><b>BlockDAG</b><small>chain 1404 · home of the Kitchen</small></button>
+      <button type="button" role="radio" data-chain="base" aria-checked="false"><b>Base</b><small id="baseSub">add-on · pool on Uniswap</small></button>
+    </div>
     <div class="grid2">
       <div class="card">
         <div style="display:flex;align-items:center;gap:10px;justify-content:space-between;flex-wrap:wrap;margin-bottom:14px"><h2 style="margin:0">Your order</h2><span class="pill" id="statePill"><i></i><span id="state">Loading…</span></span></div>
         <div class="field"><label class="f" for="fName">Name <span>(up to 32 characters)</span></label><input type="text" id="fName" maxlength="40" placeholder="Midnight Pancake" autocomplete="off"><div class="hint" id="hName"></div></div>
         <div class="field"><label class="f" for="fSym">Ticker <span>(1 to 11 letters or numbers)</span></label><input type="text" id="fSym" maxlength="11" placeholder="PANCAKE" autocomplete="off" spellcheck="false"><div class="hint" id="hSym"></div></div>
         <div class="field"><label class="f" for="fSup">Total supply <span>(whole tokens)</span></label><input type="text" id="fSup" inputmode="numeric" placeholder="1,000,000,000" autocomplete="off"><div class="hint" id="hSup"></div></div>
-        <div class="field"><div class="rangehead"><label class="f" for="fPct">Into the Reef pool <span>(the rest comes to you)</span></label><output id="oPct">50%</output></div><input type="range" id="fPct" min="10" max="100" step="5" value="50"><div class="hint" id="hPct"></div></div>
-        <div class="field"><label class="f" for="fLiq">Starting liquidity <span>(BDAG paired with your tokens; at least <span id="minTxt">10,000</span>)</span></label><input type="text" id="fLiq" inputmode="decimal" value="10,000" autocomplete="off"><div class="hint" id="hLiq"></div></div>
+        <div class="field"><div class="rangehead"><label class="f" for="fPct">Into the <span class="c-dex">Reef</span> pool <span>(the rest comes to you)</span></label><output id="oPct">50%</output></div><input type="range" id="fPct" min="10" max="100" step="5" value="50"><div class="hint" id="hPct"></div></div>
+        <div class="field"><label class="f" for="fLiq">Starting liquidity <span>(<span class="c-coin">BDAG</span> paired with your tokens; at least <span id="minTxt">10,000</span>)</span></label><input type="text" id="fLiq" inputmode="decimal" value="10,000" autocomplete="off"><div class="hint" id="hLiq"></div></div>
         <label class="ack"><input type="checkbox" id="ack"> I understand the fee and the starting liquidity can't be taken back (the pool's LP is burned), the token is mine and nobody else's responsibility, and making a token doesn't give it any value. The contract is unaudited.</label>
         <button class="btn" id="btnConnect" type="button">Connect wallet</button>
         <button class="btn alt hide" id="btnSwitch" type="button">Switch to BlockDAG (chain 1404)</button>
@@ -191,15 +204,15 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
           <div class="small" style="font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)">Order ticket</div>
           <div class="tk" id="pSym">TICKER</div>
           <div class="nm" id="pName">Your token's name</div>
-          <dl><dt>Supply</dt><dd id="pSup">–</dd><dt>Into the Reef pool</dt><dd id="pPool">–</dd><dt>To you</dt><dd id="pYou">–</dd><dt>Starting price</dt><dd id="pPrice">–</dd><dt>Starting value</dt><dd id="pCap">–</dd></dl>
-          <hr><dl style="margin:0"><dt>Starting liquidity</dt><dd id="pLiq">–</dd><dt>Kitchen fee</dt><dd id="pFee">5,000 BDAG</dd><dt class="total">You pay</dt><dd class="total" id="pTotal">–</dd></dl>
+          <dl><dt>Supply</dt><dd id="pSup">–</dd><dt>Into the <span class="c-dex">Reef</span> pool</dt><dd id="pPool">–</dd><dt>To you</dt><dd id="pYou">–</dd><dt>Starting price</dt><dd id="pPrice">–</dd><dt>Starting value</dt><dd id="pCap">–</dd></dl>
+          <hr><dl style="margin:0"><dt>Starting liquidity</dt><dd id="pLiq">–</dd><dt>Kitchen fee</dt><dd id="pFee">–</dd><dt class="total">You pay</dt><dd class="total" id="pTotal">–</dd></dl>
         </div>
         <ul class="safe">
-          <li>Trades on Reef the moment it's made</li>
+          <li>Trades on <span class="c-dex">Reef</span> the moment it's made</li>
           <li>Starting liquidity locked forever (LP burned)</li>
           <li>No owner: nobody can mint more, ever</li>
           <li>No tax, no pause, no blocked wallets</li>
-          <li>Shows clean on Reef's safety report</li>
+          <li class="only-bdag">Shows clean on Reef's safety report</li>
         </ul>
       </div>
     </div>
@@ -211,16 +224,17 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
       <p style="margin:6px 0 0" id="servedLine"></p>
       <div class="addr"><code id="servedAddr"></code><button class="small-btn" id="copyAddr" type="button">Copy</button><button class="small-btn" id="watchBtn" type="button">Add to wallet</button></div>
       <ol class="next">
-        <li><div><b>It's live on Reef</b><span>Your pool is open for trading now. <a id="nTrade" href="#" target="_blank" rel="noopener">Trade it on Reef</a> · <a id="nPair" href="#" target="_blank" rel="noopener">see the pool</a></span></div></li>
+        <li><div><b>It's live on <span class="c-dex">Reef</span></b><span>Your pool is open for trading now. <a id="nTrade" href="#" target="_blank" rel="noopener">Trade it on <span class="c-dex">Reef</span></a> · <a id="nPair" href="#" target="_blank" rel="noopener">see the pool</a></span></div></li>
         <li><div><b>Liquidity locked forever</b><span>The pool's LP tokens went to the dead address in the same transaction, so nobody, including you, can pull that liquidity.</span></div></li>
-        <li><div><b>Share your safety report</b><span>Proof it's a clean Kitchen token with locked liquidity. <a id="nReport" href="#" target="_blank" rel="noopener">See the report</a></span></div></li>
+        <li class="only-bdag"><div><b>Share your safety report</b><span>Proof it's a clean Kitchen token with locked liquidity. <a id="nReport" href="#" target="_blank" rel="noopener">See the report</a></span></div></li>
+        <li class="only-base"><div><b>Show the proof</b><span>The token's code and the burned LP are public for anyone to check. <a id="nProof" href="#" target="_blank" rel="noopener">See it on Basescan</a></span></div></li>
       </ol>
     </div>
   </section>
 
   <section id="fresh">
     <h2>Fresh out of the oven</h2>
-    <p class="sub">The newest tokens made here, all trading on Reef. Same name or ticker as another token? Always check the address.</p>
+    <p class="sub">The newest tokens made here, all trading on <span class="c-dex">Reef</span>. Same name or ticker as another token? Always check the address.</p>
     <div class="fresh" id="freshList"><p class="empty">Loading…</p></div>
   </section>
 
@@ -228,48 +242,64 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
     <h2>How it works</h2>
     <p class="sub">One transaction, one contract, nothing hidden.</p>
     <div class="how">
-      <div class="card"><h3>1. Order</h3><p>Pick a name, a ticker and a supply, how much goes into the pool and how much BDAG to pair it with. That sets the starting price, shown before you confirm.</p></div>
-      <div class="card"><h3>2. Cook</h3><p>One transaction makes your token, opens its TOKEN/BDAG pool on Reef and burns the pool's LP. The rest of the supply comes to you; the 5,000 BDAG fee goes to Reef's treasury.</p></div>
-      <div class="card"><h3>3. Serve</h3><p>It's trading on Reef straight away, with liquidity nobody can pull. Share the safety report. You're free to list it anywhere else later too.</p></div>
+      <div class="card"><h3>1. Order</h3><p>Pick a name, a ticker and a supply, how much goes into the pool and how much <span class="c-coin">BDAG</span> to pair it with. That sets the starting price, shown before you confirm.</p></div>
+      <div class="card"><h3>2. Cook</h3><p>One transaction makes your token, opens its TOKEN/<span class="c-coin">BDAG</span> pool on <span class="c-dex">Reef</span> and burns the pool's LP. The rest of the supply comes to you; the <span class="c-fee">5,000 BDAG</span> fee goes to <span class="c-treasury">Reef's treasury</span>.</p></div>
+      <div class="card"><h3>3. Serve</h3><p>It's trading on <span class="c-dex">Reef</span> straight away, with liquidity nobody can pull. <span class="only-bdag">Share the safety report.</span> You're free to list it anywhere else later too.</p></div>
     </div>
   </section>
 
   <section>
     <div class="card fine">
       <p><b style="color:var(--text)">Unaudited.</b> The Kitchen contract has tests and an internal review, but no independent audit. Source on <a href="https://github.com/benjiprojects1404-maker/reef-dex-site/tree/main/contracts/contracts/kitchen" target="_blank" rel="noopener">GitHub</a>.</p>
-      <p><b style="color:var(--text)">Your token, your responsibility.</b> The Kitchen makes the token and its first Reef pool, nothing more. It doesn't promote or vouch for anything made here, and a creator can still sell the part of the supply they kept.</p>
+      <p><b style="color:var(--text)">Your token, your responsibility.</b> The Kitchen makes the token and its first <span class="c-dex">Reef</span> pool, nothing more. It doesn't promote or vouch for anything made here, and a creator can still sell the part of the supply they kept.</p>
       <p style="margin:0"><b style="color:var(--text)">Not advice.</b> Nothing here is financial, legal or tax advice. Check what applies to you where you live before launching a token.</p>
     </div>
   </section>
 </main>
-<footer><div class="wrap">Built by <a href="https://benjiprojects1404-services.pages.dev" target="_blank" rel="noopener">Undercurrent Works</a>. Every token is served on <a href="https://reefdex.fyi" target="_blank" rel="noopener">Reef</a> first. Home of <a href="/cooked/">the original COOKED</a>.</div></footer>
+<footer><div class="wrap">Built by <a href="https://benjiprojects1404-services.pages.dev" target="_blank" rel="noopener">Undercurrent Works</a>. BlockDAG tokens are served on <a href="https://reefdex.fyi" target="_blank" rel="noopener">Reef</a>; Base tokens on Uniswap. Home of <a href="/cooked/">the original COOKED</a>.</div></footer>
 
 <script>
 "use strict";
-// Set `factory` to the deployed KitchenServe (v2) address to open the Kitchen. Until then the form shows "opening soon".
-const CFG = {
-  chainId: 1404, chainName: "BlockDAG",
-  factory: "0xF30f5E4f46AcAE803815B82CfEC5CD8Fc77eF394", // v2 KitchenServe (v1 KitchenFactory 0x0E331686ee029EfafFC3a5cFda0ee3c7006F8A98 is retired)
-  rpcs: ["https://rpc.community.bdag-us.org", "https://rpc.bdagexplorer.com", "https://rpc.dagcore.net"],
-  explorer: "https://explorer.east.bdag-us.org",
-  reef: "https://reefdex.fyi",
+// One entry per chain. `factory` empty = that chain shows "coming soon".
+const CHAINS = {
+  bdag: {
+    key: "bdag", chainId: 1404, chainName: "BlockDAG", coin: "BDAG", coinName: "BlockDAG", dex: "Reef", treasury: "Reef's treasury",
+    factory: "0xF30f5E4f46AcAE803815B82CfEC5CD8Fc77eF394", // v2 KitchenServe (v1 KitchenFactory 0x0E331686ee029EfafFC3a5cFda0ee3c7006F8A98 is retired)
+    rpcs: ["https://rpc.community.bdag-us.org", "https://rpc.bdagexplorer.com", "https://rpc.dagcore.net"],
+    explorer: "https://explorer.east.bdag-us.org",
+    reserved: ["BDAG", "WBDAG", "REEF", "NOCAP", "COOKED", "USDT", "USDC", "ETH", "WETH", "BTC", "WBTC"],
+    trade: (a) => `https://reefdex.fyi/?from=BDAG&to=${a}`,
+    report: (a) => `https://reefdex.fyi/token/?a=${a}`,
+    liqDefault: "10,000",
+  },
+  base: {
+    key: "base", chainId: 8453, chainName: "Base", coin: "ETH", coinName: "Ether", dex: "Uniswap", treasury: "the Kitchen's treasury",
+    factory: "", // KitchenServeUniV2 on Base. FILL IN ON DEPLOY DAY.
+    rpcs: ["https://mainnet.base.org", "https://base-rpc.publicnode.com", "https://base.drpc.org"],
+    explorer: "https://basescan.org",
+    reserved: ["ETH", "WETH", "USDC", "USDT", "BTC", "WBTC", "CBBTC", "BASE", "REEF", "COOKED"],
+    trade: (a) => `https://app.uniswap.org/swap?chain=base&inputCurrency=NATIVE&outputCurrency=${a}`,
+    report: (a) => `https://basescan.org/token/${a}`,
+    liqDefault: "0.01",
+  },
 };
+let CFG = CHAINS.bdag;
 // Local testing only: ?factory=0x…&rpc=http://127.0.0.1:8545
 (function () {
   const q = new URLSearchParams(location.search);
   if (/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) {
-    if (q.get("factory") && ethers.isAddress(q.get("factory"))) CFG.factory = q.get("factory");
-    if (q.get("rpc")) CFG.rpcs = [q.get("rpc")];
+    const c = CHAINS[q.get("chain")] || CHAINS.bdag;
+    if (q.get("factory") && ethers.isAddress(q.get("factory"))) c.factory = q.get("factory");
+    if (q.get("rpc")) c.rpcs = [q.get("rpc")];
   }
 })();
 (function () {
   const $ = (id) => document.getElementById(id);
-  const RESERVED = ["BDAG", "WBDAG", "REEF", "NOCAP", "COOKED", "USDT", "USDC", "ETH", "WETH", "BTC", "WBTC"];
   const ABI = ["function cook(string,string,uint256,uint256) payable returns (address,address)", "function fee() view returns (uint256)", "function minLiquidity() view returns (uint256)",
     "function tokenCount() view returns (uint256)", "function latest(uint256,uint256) view returns (address[])", "function isReserved(string) view returns (bool)", "function pairOf(address) view returns (address)",
     "event TokenServed(address indexed token, address indexed creator, address indexed pair, string name, string symbol, uint256 supply, uint256 poolTokens, uint256 poolBDAG)"];
   const TOKEN_ABI = ["function name() view returns (string)", "function symbol() view returns (string)", "function totalSupply() view returns (uint256)"];
-  let ro = null, wallet = null, signer = null, account = null, onChain = false, busy = false, fee = null, minLiq = 10000n * 10n ** 18n, listening = false;
+  let ro = null, wallet = null, signer = null, account = null, onChain = false, busy = false, fee = null, minLiq = 10000n * 10n ** 18n, listening = false, loadSeq = 0;
   const esc = (t) => String(t).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const short = (a) => a.slice(0, 6) + "…" + a.slice(-4);
   const fmtInt = (n) => BigInt(n).toLocaleString("en-US");
@@ -296,7 +326,7 @@ const CFG = {
   function checkSym(v) {
     if (!v) return [false, ""];
     if (!/^[A-Za-z0-9]{1,11}$/.test(v)) return [false, "Letters A to Z and numbers only, up to 11. No spaces or symbols."];
-    if (RESERVED.includes(v.toUpperCase())) return [false, `${v.toUpperCase()} is reserved, so nobody can copy it here.`];
+    if (CFG.reserved.includes(v.toUpperCase())) return [false, `${v.toUpperCase()} is reserved, so nobody can copy it here.`];
     return [true, "Looks good."];
   }
   function parseSupply(v) {
@@ -311,12 +341,13 @@ const CFG = {
   function parseBDAG(v) {
     const s = v.replace(/[,\s_]/g, "");
     if (!s) return [null, ""];
-    if (!/^\d+(\.\d{1,18})?$/.test(s)) return [null, "A number of BDAG, like 10000."];
+    if (!/^\d+(\.\d{1,18})?$/.test(s)) return [null, `A number of ${CFG.coin}, like ${CFG.liqDefault.replace(/,/g, "")}.`];
     const w = ethers.parseEther(s);
-    if (w < minLiq) return [null, `At least ${fmtInt(minLiq / 10n ** 18n)} BDAG.`];
+    if (w < minLiq) return [null, `At least ${coinAmt(minLiq)} ${CFG.coin}.`];
     return [w, "Paired with your tokens in the pool, and locked there for good."];
   }
-  const fmtNum = (x) => !isFinite(x) || x === 0 ? "–" : x >= 1 ? x.toLocaleString("en-US", { maximumFractionDigits: 2 }) : x.toPrecision(3);
+  const fmtNum = (x) => !isFinite(x) || x === 0 ? "–" : x >= 1 ? x.toLocaleString("en-US", { maximumFractionDigits: 2 }) : x.toLocaleString("en-US", { maximumSignificantDigits: 3, maximumFractionDigits: 20 });
+  const coinAmt = (wei) => { const x = Number(ethers.formatEther(wei)); return x >= 1 ? x.toLocaleString("en-US", { maximumFractionDigits: 4 }) : String(x); };
   function form() {
     const name = $("fName").value, sym = $("fSym").value.trim();
     const [nOk, nMsg] = checkName(name), [sOk, sMsg] = checkSym(sym), [sup, supMsg] = parseSupply($("fSup").value);
@@ -325,7 +356,7 @@ const CFG = {
     hint("hName", nOk, nMsg); hint("hSym", sOk, sMsg); hint("hSup", sup !== null, supMsg); hint("hLiq", liq !== null, liqMsg);
     $("oPct").textContent = pct + "%";
     hint("hPct", true, pct === 100n ? "All of it into the pool: a pure fair launch, you keep none." : `You keep ${100n - pct}% of the supply.`);
-    $("minTxt").textContent = fmtInt(minLiq / 10n ** 18n);
+    $("minTxt").textContent = coinAmt(minLiq);
     $("pName").textContent = name || "Your token's name";
     $("pSym").textContent = sym ? sym : "TICKER";
     $("pSup").textContent = sup !== null ? fmtInt(sup) : "–";
@@ -333,12 +364,13 @@ const CFG = {
     $("pPool").textContent = poolT !== null ? fmtInt(poolT) + ` (${pct}%)` : `– (${pct}%)`;
     $("pYou").textContent = poolT !== null ? fmtInt(sup - poolT) : "–";
     const liqN = liq !== null ? Number(ethers.formatEther(liq)) : 0, price = poolT ? liqN / Number(poolT) : 0;
-    $("pPrice").textContent = price ? fmtNum(price) + " BDAG" : "–";
-    $("pCap").textContent = price && sup !== null ? fmtNum(price * Number(sup)) + " BDAG" : "–";
-    $("pLiq").textContent = liq !== null ? fmtNum(liqN) + " BDAG" : "–";
-    const feeN = fee !== null ? Number(ethers.formatEther(fee)) : 5000;
-    $("pFee").textContent = fmtNum(feeN) + " BDAG";
-    $("pTotal").textContent = liq !== null ? fmtNum(liqN + feeN) + " BDAG" : "–";
+    $("pPrice").textContent = price ? fmtNum(price) + " " + CFG.coin : "–";
+    $("pCap").textContent = price && sup !== null ? fmtNum(price * Number(sup)) + " " + CFG.coin : "–";
+    $("pLiq").textContent = liq !== null ? fmtNum(liqN) + " " + CFG.coin : "–";
+    const feeN = fee !== null ? Number(ethers.formatEther(fee)) : null;
+    $("pFee").textContent = feeN === null ? "–" : feeN === 0 ? "free" : fmtNum(feeN) + " " + CFG.coin;
+    $("pTotal").textContent = liq !== null && feeN !== null ? fmtNum(liqN + feeN) + " " + CFG.coin : "–";
+    document.querySelectorAll(".c-fee").forEach((e) => (e.textContent = feeN === null ? "Kitchen" : fmtNum(feeN) + " " + CFG.coin));
     return { ok: nOk && sOk && sup !== null && liq !== null, name, sym, sup, pct, liq };
   }
 
@@ -349,16 +381,21 @@ const CFG = {
     try { return await Promise.any(tries); } catch (e) { return null; }
   }
   async function load() {
-    if (!CFG.factory) { setState("Opening soon", "wait"); renderFresh(null); render(); return; }
+    const seq = ++loadSeq, c = CFG;
+    if (!c.factory) { setState("Opening soon", "wait"); renderFresh(null); render(); return; }
     if (!ro) ro = await pickRpc();
-    if (!ro) { setState("Can't reach BlockDAG", "bad"); render(); return; }
+    if (seq !== loadSeq) return;
+    if (!ro) { setState(`Can't reach ${c.chainName}`, "bad"); render(); return; }
     try {
-      const f = new ethers.Contract(CFG.factory, ABI, ro);
-      [fee, minLiq] = await Promise.all([f.fee(), f.minLiquidity()]);
-      setState("Open", "ok");
+      const f = new ethers.Contract(c.factory, ABI, ro);
+      const [fe, ml] = await Promise.all([f.fee(), f.minLiquidity()]);
       const n = Number(await f.tokenCount());
-      renderFresh(n ? await f.latest(0, 12) : []);
-    } catch (e) { setState("Can't read the Kitchen", "bad"); }
+      const list = n ? await f.latest(0, 12) : [];
+      if (seq !== loadSeq) return;
+      fee = fe; minLiq = ml;
+      setState("Open", "ok");
+      renderFresh(list);
+    } catch (e) { if (seq === loadSeq) setState("Can't read the Kitchen", "bad"); }
     render();
   }
   async function renderFresh(addrs) {
@@ -371,14 +408,15 @@ const CFG = {
     }));
     box.innerHTML = rows.map((r) => `<div class="tok"><div class="tk">${esc(r.s)}</div><div class="nm">${esc(r.n)}</div>
       <div class="meta">${fmtInt(r.ts / 10n ** 18n)} supply · <a href="${CFG.explorer}/token/${r.a}" target="_blank" rel="noopener">${short(r.a)}</a></div>
-      <div class="links"><a href="${CFG.reef}/?from=BDAG&to=${r.a}" target="_blank" rel="noopener">Trade on Reef</a><a href="${CFG.reef}/token/?a=${r.a}" target="_blank" rel="noopener">Safety report</a></div></div>`).join("");
+      <div class="links"><a href="${CFG.trade(r.a)}" target="_blank" rel="noopener">Trade on ${CFG.dex}</a>${CFG.key === "bdag" ? `<a href="${CFG.report(r.a)}" target="_blank" rel="noopener">Safety report</a>` : ""}</div></div>`).join("");
   }
   function render() {
     const f = form();
     $("btnConnect").classList.toggle("hide", !!account);
     $("btnSwitch").classList.toggle("hide", !account || onChain);
     $("btnCook").classList.toggle("hide", !account || !onChain);
-    const total = f.liq !== null && fee !== null ? fmtNum(Number(ethers.formatEther(f.liq + fee))) + " BDAG" : "";
+    const total = f.liq !== null && fee !== null ? fmtNum(Number(ethers.formatEther(f.liq + fee))) + " " + CFG.coin : "";
+    $("btnSwitch").textContent = `Switch to ${CFG.chainName} (chain ${CFG.chainId})`;
     $("btnCook").textContent = !CFG.factory ? "The Kitchen opens soon" : busy ? "Cooking…" : total ? `Cook and serve for ${total}` : "Cook and serve";
     $("btnCook").disabled = !CFG.factory || busy || !f.ok || !$("ack").checked || fee === null;
   }
@@ -407,15 +445,15 @@ const CFG = {
     catch (e) {
       if ((e && e.code) !== 4902) { msg(errText(e), "err"); return; }
       await window.ethereum.request({ method: "wallet_addEthereumChain", params: [{ chainId: hex, chainName: CFG.chainName,
-        nativeCurrency: { name: "BlockDAG", symbol: "BDAG", decimals: 18 }, rpcUrls: CFG.rpcs, blockExplorerUrls: [CFG.explorer] }] });
+        nativeCurrency: { name: CFG.coinName, symbol: CFG.coin, decimals: 18 }, rpcUrls: CFG.rpcs, blockExplorerUrls: [CFG.explorer] }] });
     }
     wallet = new ethers.BrowserProvider(window.ethereum); await checkNet();
   }
   function errText(e) {
     if (e && (e.code === "ACTION_REJECTED" || e.code === 4001)) return "Request cancelled in your wallet.";
     const m = (e && (e.reason || e.shortMessage || (e.info && e.info.error && e.info.error.message) || e.message)) || "Something went wrong.";
-    if (/insufficient funds/i.test(m)) return "Not enough BDAG for the fee, the starting liquidity and gas.";
-    const map = { ReservedSymbol: "That ticker is reserved.", BadSymbol: "That ticker isn't allowed.", BadName: "That name isn't allowed.", BadSupply: "That supply isn't allowed.", BadPoolShare: "The pool share must be 10% to 100%.", NotEnoughBDAG: "The fee or the minimum liquidity changed. Reload the page and try again." };
+    if (/insufficient funds/i.test(m)) return `Not enough ${CFG.coin} for the fee, the starting liquidity and gas.`;
+    const map = { ReservedSymbol: "That ticker is reserved.", BadSymbol: "That ticker isn't allowed.", BadName: "That name isn't allowed.", BadSupply: "That supply isn't allowed.", BadPoolShare: "The pool share must be 10% to 100%.", NotEnoughBDAG: "The fee or the minimum liquidity changed. Reload the page and try again.", NotEnoughETH: "The fee or the minimum liquidity changed. Reload the page and try again." };
     for (const k in map) if (m.includes(k)) return map[k];
     return m.replace(/^execution reverted:?\s*/i, "");
   }
@@ -425,11 +463,12 @@ const CFG = {
     busy = true; render();
     try {
       const k = new ethers.Contract(CFG.factory, ABI, signer);
+      if (Number((await wallet.getNetwork()).chainId) !== CFG.chainId) throw new Error(`Your wallet isn't on ${CFG.chainName}. Switch network and try again.`);
       if (await new ethers.Contract(CFG.factory, ABI, ro).isReserved(f.sym)) throw new Error("ReservedSymbol");
       fee = await k.fee();
       const value = fee + f.liq;
       await k.cook.staticCall(f.name, f.sym, f.sup, f.pct, { value });
-      msg(`Confirm in your wallet: ${fmtNum(Number(ethers.formatEther(value)))} BDAG in total…`);
+      msg(`Confirm in your wallet: ${fmtNum(Number(ethers.formatEther(value)))} ${CFG.coin} in total…`);
       const tx = await k.cook(f.name, f.sym, f.sup, f.pct, { value });
       msg(`Cooking… <a href="${CFG.explorer}/tx/${tx.hash}" target="_blank" rel="noopener">View transaction</a>`);
       const r = await tx.wait();
@@ -443,11 +482,12 @@ const CFG = {
   }
   function served(addr, pair, f) {
     const kept = f.sup - (f.sup * f.pct) / 100n;
-    $("servedLine").innerHTML = `<b>${esc(f.name)}</b> (${esc(f.sym)}) is live on Reef with ${fmtInt((f.sup * f.pct) / 100n)} tokens and ${fmtNum(Number(ethers.formatEther(f.liq)))} BDAG in its pool${kept > 0n ? `, and ${fmtInt(kept)} tokens are in your wallet` : ""}.`;
+    $("servedLine").innerHTML = `<b>${esc(f.name)}</b> (${esc(f.sym)}) is live on ${CFG.dex} (${CFG.chainName}) with ${fmtInt((f.sup * f.pct) / 100n)} tokens and ${fmtNum(Number(ethers.formatEther(f.liq)))} ${CFG.coin} in its pool${kept > 0n ? `, and ${fmtInt(kept)} tokens are in your wallet` : ""}.`;
     $("servedAddr").textContent = addr;
-    $("nTrade").href = `${CFG.reef}/?from=BDAG&to=${addr}`;
+    $("nTrade").href = CFG.trade(addr);
     $("nPair").href = `${CFG.explorer}/address/${pair}`;
-    $("nReport").href = `${CFG.reef}/token/?a=${addr}`;
+    $("nReport").href = CFG.report(addr);
+    $("nProof").href = `${CFG.explorer}/token/${addr}`;
     $("copyAddr").onclick = () => navigator.clipboard && navigator.clipboard.writeText(addr).then(() => { $("copyAddr").textContent = "Copied"; setTimeout(() => ($("copyAddr").textContent = "Copy"), 1500); });
     $("watchBtn").onclick = () => window.ethereum && window.ethereum.request({ method: "wallet_watchAsset", params: { type: "ERC20", options: { address: addr, symbol: f.sym.slice(0, 11), decimals: 18 } } }).catch(() => {});
     $("servedBox").classList.remove("hide");
@@ -458,6 +498,39 @@ const CFG = {
   $("fSup").addEventListener("blur", () => { const [n] = parseSupply($("fSup").value); if (n !== null) { $("fSup").value = fmtInt(n); render(); } });
   $("ack").addEventListener("change", render);
   $("btnConnect").onclick = connect; $("btnSwitch").onclick = switchNet; $("btnCook").onclick = cook;
+
+  // ---------- which chain to launch on ----------
+  function useChain(key, remember) {
+    const c = CHAINS[key] || CHAINS.bdag;
+    if (!c.factory && c.key !== "bdag" && !remember) return useChain("bdag");
+    const changed = CFG !== c;
+    CFG = c;
+    document.body.classList.toggle("on-base", c.key === "base");
+    document.querySelectorAll(".chainpick button").forEach((b) => b.setAttribute("aria-checked", String(b.dataset.chain === c.key)));
+    document.querySelectorAll(".c-dex").forEach((e) => (e.textContent = c.dex));
+    document.querySelectorAll(".c-coin").forEach((e) => (e.textContent = c.coin));
+    document.querySelectorAll(".c-treasury").forEach((e) => (e.textContent = c.treasury));
+    if (changed) {
+      ro = null; fee = null; minLiq = 0n;
+      $("fLiq").value = c.liqDefault;
+      $("servedBox").classList.add("hide"); msg("");
+      $("freshList").innerHTML = '<p class="empty">Loading…</p>';
+      try { localStorage.setItem("kitchen-chain", c.key); } catch (e) {}
+      if (c.key === "bdag") history.replaceState(null, "", location.pathname + location.hash);
+      else history.replaceState(null, "", "?chain=" + c.key + location.hash);
+      checkNet(); load();
+    }
+    render();
+  }
+  if (!CHAINS.base.factory) {
+    const b = document.querySelector('.chainpick [data-chain="base"]');
+    b.disabled = true; $("baseSub").textContent = "add-on · coming soon";
+  }
+  document.querySelectorAll(".chainpick button").forEach((b) => b.addEventListener("click", () => useChain(b.dataset.chain, true)));
+  let start = new URLSearchParams(location.search).get("chain");
+  if (!start) { try { start = localStorage.getItem("kitchen-chain"); } catch (e) {} }
+  if (start && CHAINS[start] && CHAINS[start].factory) useChain(start, true);
+  else useChain("bdag");
   load(); setInterval(load, 30000);
 })();
 </script>
