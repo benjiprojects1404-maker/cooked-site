@@ -80,7 +80,7 @@ td.n{font-family:"JetBrains Mono",monospace;font-size:13px;white-space:nowrap}
       <ul><li>At least <b>25 holders</b> besides you</li><li>At least <b>50,000 BDAG</b> traded in its first 14 days</li></ul></div>
   </div>
   <ul class="fine">
-    <li>Launches on BlockDAG through the Kitchen only, made between 20 Nov and 31 Dec 2026 (Bangkok time). One reward per wallet: your first launch that qualifies.</li>
+    <li>Launches on BlockDAG through the Kitchen only, made between 20 Nov and 31 Dec 2026 (Bangkok time), plus FLASH as an early supporter. One reward per wallet: your first launch that qualifies. Launches by Reef's own team don't count.</li>
     <li>Holders don't count the pool, the burn address, the Kitchen or you. Liquidity is the pool's total value in BDAG, as Reef shows it.</li>
     <li>REEF is paid to the wallet that cooked the token, by hand, once a week, from Reef's marketing wallet. Every payment is listed below with its transaction.</li>
     <li>Wash trading, buying with your own wallets or anything else that games the rules doesn't qualify. Reef has the final say on payouts.</li>
@@ -108,6 +108,8 @@ const DEAD = "0x000000000000000000000000000000000000dead";
 const START = Date.UTC(2026, 10, 19, 17, 0, 0) / 1000; // 20 Nov 2026 00:00 Bangkok
 const END = Date.UTC(2026, 11, 31, 17, 0, 0) / 1000;   // 1 Jan 2027 00:00 Bangkok
 const POT = 5000, DAY = 86400;
+// Launched just before the promo opened and included as an early supporter.
+const EARLY = new Set(["0xe17672c2c34d6c56b1dfd65c1896c6cb973d9676"]); // FLASH, 17 Nov
 const RULES = { liq: 10000, h7: 10, h14: 25, vol14: 50000 };
 
 const $ = (id) => document.getElementById(id);
@@ -211,7 +213,8 @@ async function run() {
   for (const l of logs) {
     const ev = KITCHEN_IFACE.parseLog(l);
     const b = await p.getBlock(l.blockNumber);
-    if (b.timestamp < START || b.timestamp >= END) continue;
+    const tok = ev.args.token.toLowerCase();
+    if ((b.timestamp < START && !EARLY.has(tok)) || b.timestamp >= END) continue;
     launches.push({ token: ev.args.token.toLowerCase(), creator: ev.args.creator.toLowerCase(), pair: ev.args.pair.toLowerCase(),
       name: ev.args.name, symbol: ev.args.symbol, block: l.blockNumber, ts: b.timestamp });
   }
@@ -272,7 +275,7 @@ async function run() {
     else reward = `<span class="pill no">Didn't qualify</span><span class="why">${whyNot7(liq, holders)}</span>`;
 
     out.push(`<tr>
-      <td class="tok"><b>${esc(L.symbol)}</b> ${esc(L.name)}<span><a href="https://reefdex.fyi/token/?a=${L.token}" target="_blank" rel="noopener">${short(L.token)}</a> · by ${short(L.creator)}</span></td>
+      <td class="tok"><b>${esc(L.symbol)}</b> ${esc(L.name)}${EARLY.has(L.token) ? ' <span class="pill wait" style="display:inline-block">Early supporter</span>' : ""}<span><a href="https://reefdex.fyi/token/?a=${L.token}" target="_blank" rel="noopener">${short(L.token)}</a> · by ${short(L.creator)}</span></td>
       <td class="n">${date(L.ts)}</td>
       <td class="n hide-sm"><span class="${liq >= RULES.liq ? "yes" : "nope"}">${fmt(liq)}</span> BDAG</td>
       <td class="n"><span class="${holders != null && holders >= RULES.h7 ? "yes" : "nope"}">${holders == null ? "–" : holders + (capped ? "+" : "")}</span></td>
