@@ -143,6 +143,29 @@ async function holdersExcluding(token, skip) {
   return { n, capped: more };
 }
 
+// First block at or after time t (binary search on block timestamps).
+async function blockAt(p, t, head) {
+  if (head.timestamp <= t) return head.number;
+  let lo = 0, hi = head.number;
+  while (hi - lo > 1) {
+    const mid = Math.floor((lo + hi) / 2);
+    const b = await p.getBlock(mid);
+    if (b && b.timestamp >= t) hi = mid; else lo = mid;
+  }
+  return hi;
+}
+// Logs over a block range in pieces, halving a piece whenever the node says it's too big or times out.
+async function getLogsChunked(p, filter, from, to) {
+  const out = [];
+  let step = 200000;
+  for (let a = from; a <= to; ) {
+    const b = Math.min(to, a + step - 1);
+    try { out.push(...(await p.getLogs({ ...filter, fromBlock: a, toBlock: b }))); a = b + 1; }
+    catch (e) { if (step <= 500) throw e; step = Math.floor(step / 4); }
+  }
+  return out;
+}
+
 async function loadPayouts() {
   try { return await getJson("/promo/payouts.json?v=" + Date.now()); } catch (e) { return []; }
 }
@@ -162,7 +185,8 @@ async function run() {
   try { p = await provider(); } catch (e) { $("status").textContent = e.message; $("rows").innerHTML = ""; return; }
 
   const head = await p.getBlock("latest");
-  const logs = await p.getLogs({ address: KITCHEN, topics: [KITCHEN_IFACE.getEvent("TokenServed").topicHash], fromBlock: 0, toBlock: head.number });
+  const startBlock = await blockAt(p, START, head);
+  const logs = await getLogsChunked(p, { address: KITCHEN, topics: [KITCHEN_IFACE.getEvent("TokenServed").topicHash] }, startBlock, head.number);
   const launches = [];
   for (const l of logs) {
     const ev = KITCHEN_IFACE.parseLog(l);
@@ -200,7 +224,7 @@ async function run() {
     const end14 = Math.min(head.number, L.block + Math.ceil((14 * DAY) / spb));
     let vol = 0;
     try {
-      const sl = await p.getLogs({ address: L.pair, topics: [PAIR_IFACE.getEvent("Swap").topicHash], fromBlock: L.block, toBlock: end14 });
+      const sl = await getLogsChunked(p, { address: L.pair, topics: [PAIR_IFACE.getEvent("Swap").topicHash] }, L.block, end14);
       for (const s of sl) {
         const a = PAIR_IFACE.parseLog(s).args;
         vol += Number(E.formatEther(bdagIs0 ? a.amount0In + a.amount0Out : a.amount1In + a.amount1Out));
