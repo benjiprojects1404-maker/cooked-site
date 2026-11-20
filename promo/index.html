@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Holiday Kitchen promo · up to 30 REEF per launch</title>
+<meta name="description" content="Cook a token on BlockDAG between 20 Nov and 31 Dec 2026 and earn up to 30 REEF if it gets real holders. Live list of every launch and whether it qualifies.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Holiday Kitchen promo · up to 30 REEF per launch">
+<meta property="og:description" content="Cook a token on BlockDAG before 31 Dec. Launches that get real holders earn up to 30 REEF, until the 5,000 REEF pot runs out.">
+<meta property="og:url" content="https://cookedmeme.fyi/promo/">
+<meta property="og:image" content="https://cookedmeme.fyi/assets/kitchen-og.jpg?v=1">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://cookedmeme.fyi/assets/kitchen-og.jpg?v=1">
+<meta name="theme-color" content="#0d0b1f">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230d0b1f'/%3E%3Cpath d='M32 9c4 10 13 14 13 27a13 13 0 0 1-26 0c0-7 4-11 7-15 1 5 3 7 6 8-2-8 0-14 0-20z' fill='none' stroke='%23ff3d8b' stroke-width='4' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Righteous&family=Nunito:wght@400;600;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.17.0/ethers.umd.min.js"></script>
+<style>
+:root{--bg:#0d0b1f;--card:#17142e;--raised:#211d40;--line:rgba(190,170,255,.14);--line2:rgba(190,170,255,.26);
+  --text:#d9d0f7;--muted:#9f95c9;--head:#c9bcf7;--pink:#ff3d8b;--mint:#3ef0c1;--violet:#8b6cff;--warn:#ffb15c;--bad:#ff6b6b;color-scheme:dark}
+*{box-sizing:border-box}
+html{overflow-x:clip}
+body{margin:0;background:var(--bg);color:var(--text);font:400 16px/1.6 "Nunito",system-ui,sans-serif;
+  background-image:radial-gradient(50% 35% at 85% -5%,rgba(255,61,139,.18),transparent 70%),radial-gradient(45% 30% at 0% 100%,rgba(62,240,193,.12),transparent 70%);background-attachment:fixed}
+a{color:var(--mint)}
+.wrap{max-width:1040px;margin:0 auto;padding:22px 16px 60px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:26px}
+header a.home{font:400 22px "Righteous",sans-serif;color:var(--head);text-decoration:none}
+header a.cta{background:var(--pink);color:#22051a;font-weight:800;border-radius:999px;padding:8px 16px;text-decoration:none;white-space:nowrap}
+h1{font:400 clamp(30px,6vw,52px)/1.05 "Righteous",sans-serif;color:var(--head);margin:0 0 10px}
+h1 em{font-style:normal;color:var(--pink);text-shadow:0 0 22px rgba(255,61,139,.45)}
+h2{font:400 24px "Righteous",sans-serif;color:var(--head);margin:34px 0 10px}
+.lead{font-size:18px;max-width:720px;margin:0 0 20px}
+.pot{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:0 0 8px}
+.box{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px}
+.box .k{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.box .v{font:400 28px "Righteous",sans-serif;color:var(--mint)}
+.box .s{font-size:13px;color:var(--muted)}
+.bar{height:8px;border-radius:99px;background:var(--raised);overflow:hidden;margin:6px 0 0}.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--mint),var(--violet))}
+.rules{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.rule h3{margin:0 0 4px;color:var(--head);font-size:17px}
+.rule h3 b{color:var(--pink)}
+.rule ul{margin:6px 0 0;padding-left:18px}.rule li{margin:2px 0}
+.fine{font-size:14px;color:var(--muted)}
+.fine li{margin:3px 0}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-align:left;font-weight:600;padding:8px 8px;border-bottom:1px solid var(--line2)}
+td{padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+td.n{font-family:"JetBrains Mono",monospace;font-size:13px;white-space:nowrap}
+.tok b{color:var(--head)}.tok span{display:block;font-size:12px;color:var(--muted);font-family:"JetBrains Mono",monospace}
+.pill{display:inline-block;border-radius:999px;padding:1px 9px;font-size:12px;font-weight:700;border:1px solid var(--line2);white-space:nowrap;margin:1px 0}
+.pill.ok{color:var(--mint);border-color:rgba(62,240,193,.4)}.pill.wait{color:var(--warn);border-color:rgba(255,177,92,.4)}.pill.no{color:var(--muted)}.pill.paid{color:#22051a;background:var(--mint);border-color:var(--mint)}
+.why{display:block;font-size:12px;color:var(--muted);margin-top:2px}
+.yes{color:var(--mint)}.nope{color:var(--bad)}
+.status{color:var(--muted);font-size:14px}
+.tablewrap{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:4px 8px}
+@media (max-width:720px){.pot,.rules{grid-template-columns:1fr}.hide-sm{display:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header><a class="home" href="/">The Kitchen</a><a class="cta" href="/#cook">Cook a token</a></header>
+
+  <h1>Holiday promo: up to <em>30 REEF</em> per launch</h1>
+  <p class="lead">Cook a token on BlockDAG between <b>20 November and 31 December 2026</b>. If people actually pick it up, you earn REEF back: 15 after a week, and 15 more after two weeks. Until 31 December or until the 5,000 REEF pot runs out.</p>
+
+  <div class="pot">
+    <div class="box"><div class="k">Left in the pot</div><div class="v" id="left">5,000</div><div class="s">of 5,000 REEF</div><div class="bar"><i id="leftBar" style="width:100%"></i></div></div>
+    <div class="box"><div class="k">Paid out</div><div class="v" id="paid">0</div><div class="s">REEF, to <span id="paidN">0</span> launches</div></div>
+    <div class="box"><div class="k">Launches in the promo</div><div class="v" id="nLaunch">–</div><div class="s" id="nLaunchS">reading the chain…</div></div>
+  </div>
+
+  <h2>How to earn it</h2>
+  <div class="rules">
+    <div class="box rule"><h3>After 7 days: <b>15 REEF</b></h3>
+      <ul><li>The pool still has at least <b>10,000 BDAG</b> of liquidity on Reef</li><li>At least <b>10 holders</b> besides you</li></ul></div>
+    <div class="box rule"><h3>After 14 days: <b>+15 REEF</b></h3>
+      <ul><li>At least <b>25 holders</b> besides you</li><li>At least <b>50,000 BDAG</b> traded in its first 14 days</li></ul></div>
+  </div>
+  <ul class="fine">
+    <li>Launches on BlockDAG through the Kitchen only, made between 20 Nov and 31 Dec 2026 (Bangkok time). One reward per wallet: your first launch that qualifies.</li>
+    <li>Holders don't count the pool, the burn address, the Kitchen or you. Liquidity is the pool's total value in BDAG, as Reef shows it.</li>
+    <li>REEF is paid to the wallet that cooked the token, by hand, once a week, from Reef's marketing wallet. Every payment is listed below with its transaction.</li>
+    <li>Wash trading, buying with your own wallets or anything else that games the rules doesn't qualify. Reef has the final say on payouts.</li>
+    <li>REEF is a reward for a launch people use, not an investment. Its value moves with the market. Not for US/UK persons.</li>
+  </ul>
+
+  <h2>Every launch in the promo</h2>
+  <p class="status" id="status">Reading launches from the chain…</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Token</th><th>Launched</th><th class="hide-sm">Liquidity</th><th>Holders</th><th class="hide-sm">Traded (14 days)</th><th>Reward</th></tr></thead>
+    <tbody id="rows"><tr><td colspan="6" class="status">Loading…</td></tr></tbody>
+  </table></div>
+  <p class="fine">Numbers are read live from BlockDAG and Reef's explorer each time you open this page. The weekly payout check uses the same rules.</p>
+</div>
+
+<script>
+"use strict";
+const E = ethers;
+const RPCS = ["https://rpc.community.bdag-us.org", "https://rpc.bdagexplorer.com", "https://rpc.dagcore.net"];
+const KITCHEN = "0xF30f5E4f46AcAE803815B82CfEC5CD8Fc77eF394";
+const WBDAG = "0x62ba5c4f067989a7f6644488c875bea69bfa1fba";
+const EXP = "https://explorer.east.bdag-us.org";
+const EXP_API = EXP + "/api/v2";
+const DEAD = "0x000000000000000000000000000000000000dead";
+const START = Date.UTC(2026, 10, 19, 17, 0, 0) / 1000; // 20 Nov 2026 00:00 Bangkok
+const END = Date.UTC(2026, 11, 31, 17, 0, 0) / 1000;   // 1 Jan 2027 00:00 Bangkok
+const POT = 5000, DAY = 86400;
+const RULES = { liq: 10000, h7: 10, h14: 25, vol14: 50000 };
+
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const short = (a) => a.slice(0, 6) + "…" + a.slice(-4);
+const fmt = (n) => n >= 1e6 ? (n / 1e6).toFixed(2) + "M" : n >= 1e3 ? Math.round(n).toLocaleString("en-US") : n.toLocaleString("en-US", { maximumFractionDigits: 1 });
+const date = (t) => new Date(t * 1000).toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "Asia/Bangkok" });
+
+const KITCHEN_IFACE = new E.Interface(["event TokenServed(address indexed token, address indexed creator, address indexed pair, string name, string symbol, uint256 supply, uint256 poolTokens, uint256 poolBDAG)"]);
+const PAIR_IFACE = new E.Interface(["event Swap(address indexed sender, uint256 amount0In, uint256 amount1In, uint256 amount0Out, uint256 amount1Out, address indexed to)",
+  "function getReserves() view returns (uint112,uint112,uint32)", "function token0() view returns (address)"]);
+
+async function provider() {
+  for (const u of RPCS) {
+    try { const p = new E.JsonRpcProvider(u, 1404, { staticNetwork: true }); await p.getBlockNumber(); return p; } catch (e) { /* next */ }
+  }
+  throw new Error("Couldn't reach BlockDAG just now.");
+}
+const getJson = (u) => fetch(u, { signal: AbortSignal.timeout(12000) }).then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); });
+
+async function holdersExcluding(token, skip) {
+  let n = 0, params = "", pages = 0, more = true;
+  while (more && pages < 8) {
+    const j = await getJson(`${EXP_API}/tokens/${token}/holders${params}`);
+    for (const it of j.items || []) {
+      const a = (it.address && it.address.hash || "").toLowerCase();
+      if (a && !skip.has(a) && BigInt(it.value || "0") > 0n) n++;
+    }
+    const np = j.next_page_params;
+    more = !!np; pages++;
+    if (np) params = "?" + new URLSearchParams(np).toString();
+  }
+  return { n, capped: more };
+}
+
+async function loadPayouts() {
+  try { return await getJson("/promo/payouts.json?v=" + Date.now()); } catch (e) { return []; }
+}
+
+function showPot(payouts) {
+  const paid = payouts.reduce((a, p) => a + Number(p.amount || 0), 0);
+  $("left").textContent = Math.max(0, POT - paid).toLocaleString("en-US");
+  $("leftBar").style.width = Math.max(0, 100 - (paid / POT) * 100) + "%";
+  $("paid").textContent = paid.toLocaleString("en-US");
+  $("paidN").textContent = new Set(payouts.map((p) => p.token.toLowerCase())).size;
+}
+
+async function run() {
+  const payouts = await loadPayouts();
+  showPot(payouts);
+  let p;
+  try { p = await provider(); } catch (e) { $("status").textContent = e.message; $("rows").innerHTML = ""; return; }
+
+  const head = await p.getBlock("latest");
+  const logs = await p.getLogs({ address: KITCHEN, topics: [KITCHEN_IFACE.getEvent("TokenServed").topicHash], fromBlock: 0, toBlock: head.number });
+  const launches = [];
+  for (const l of logs) {
+    const ev = KITCHEN_IFACE.parseLog(l);
+    const b = await p.getBlock(l.blockNumber);
+    if (b.timestamp < START || b.timestamp >= END) continue;
+    launches.push({ token: ev.args.token.toLowerCase(), creator: ev.args.creator.toLowerCase(), pair: ev.args.pair.toLowerCase(),
+      name: ev.args.name, symbol: ev.args.symbol, block: l.blockNumber, ts: b.timestamp });
+  }
+  $("nLaunch").textContent = launches.length;
+  $("nLaunchS").textContent = launches.length === 1 ? "token cooked so far" : "tokens cooked so far";
+  if (!launches.length) {
+    $("status").textContent = "No launches in the promo yet. Be the first.";
+    $("rows").innerHTML = `<tr><td colspan="6" class="status">Nothing cooked since 20 Nov yet. <a href="/#cook">Cook the first one</a>.</td></tr>`;
+    return;
+  }
+  $("status").textContent = `Checking ${launches.length} launch${launches.length === 1 ? "" : "es"}…`;
+
+  // Seconds per block, to find roughly which block is 14 days after each launch.
+  const first = launches[0];
+  const spb = head.number > first.block ? (head.timestamp - first.ts) / (head.number - first.block) : 1;
+
+  const rewarded = new Set(payouts.map((x) => x.creator.toLowerCase()));
+  const seenWallet = new Set();
+  const out = [];
+  for (const L of launches.sort((a, b) => a.ts - b.ts)) {
+    const pair = new E.Contract(L.pair, PAIR_IFACE, p);
+    const [res, t0] = await Promise.all([pair.getReserves(), pair.token0()]);
+    const bdagIs0 = t0.toLowerCase() === WBDAG;
+    const liq = 2 * Number(E.formatEther(bdagIs0 ? res[0] : res[1]));
+
+    const skip = new Set([L.creator, L.pair, DEAD, "0x0000000000000000000000000000000000000000", KITCHEN.toLowerCase()]);
+    let holders = null, capped = false;
+    try { const h = await holdersExcluding(L.token, skip); holders = h.n; capped = h.capped; } catch (e) { holders = null; }
+
+    const end14 = Math.min(head.number, L.block + Math.ceil((14 * DAY) / spb));
+    let vol = 0;
+    try {
+      const sl = await p.getLogs({ address: L.pair, topics: [PAIR_IFACE.getEvent("Swap").topicHash], fromBlock: L.block, toBlock: end14 });
+      for (const s of sl) {
+        const a = PAIR_IFACE.parseLog(s).args;
+        vol += Number(E.formatEther(bdagIs0 ? a.amount0In + a.amount0Out : a.amount1In + a.amount1Out));
+      }
+    } catch (e) { vol = null; }
+
+    const age = head.timestamp - L.ts;
+    const paidHere = payouts.filter((x) => x.token.toLowerCase() === L.token);
+    const paidAmt = paidHere.reduce((a, x) => a + Number(x.amount || 0), 0);
+    const firstForWallet = !seenWallet.has(L.creator);
+    const meets7 = liq >= RULES.liq && holders != null && holders >= RULES.h7;
+    const meets14 = holders != null && holders >= RULES.h14 && vol != null && vol >= RULES.vol14;
+    if (firstForWallet && (meets7 || paidAmt)) seenWallet.add(L.creator);
+
+    let reward;
+    if (paidAmt) reward = `<span class="pill paid">Paid ${paidAmt} REEF</span>` + paidHere.map((x) => x.tx ? `<a class="why" href="${EXP}/tx/${esc(x.tx)}" target="_blank" rel="noopener">${esc(x.tier || "")} payment ↗</a>` : "").join("");
+    else if (!firstForWallet || rewarded.has(L.creator)) reward = `<span class="pill no">Not eligible</span><span class="why">This wallet already has a qualifying launch</span>`;
+    else if (age < 7 * DAY) reward = `<span class="pill wait">Week 1 check ${date(L.ts + 7 * DAY)}</span><span class="why">${meets7 ? "On track for 15 REEF" : whyNot7(liq, holders)}</span>`;
+    else if (meets7 && age < 14 * DAY) reward = `<span class="pill ok">15 REEF due</span><span class="why">Week 2 check ${date(L.ts + 14 * DAY)}: ${meets14 ? "on track for +15" : "needs " + whyNot14(holders, vol)}</span>`;
+    else if (meets7 && meets14) reward = `<span class="pill ok">30 REEF due</span>`;
+    else if (meets7) reward = `<span class="pill ok">15 REEF due</span><span class="why">Missed week 2: ${whyNot14(holders, vol)}</span>`;
+    else reward = `<span class="pill no">Didn't qualify</span><span class="why">${whyNot7(liq, holders)}</span>`;
+
+    out.push(`<tr>
+      <td class="tok"><b>${esc(L.symbol)}</b> ${esc(L.name)}<span><a href="https://reefdex.fyi/token/?a=${L.token}" target="_blank" rel="noopener">${short(L.token)}</a> · by ${short(L.creator)}</span></td>
+      <td class="n">${date(L.ts)}</td>
+      <td class="n hide-sm"><span class="${liq >= RULES.liq ? "yes" : "nope"}">${fmt(liq)}</span> BDAG</td>
+      <td class="n"><span class="${holders != null && holders >= RULES.h7 ? "yes" : "nope"}">${holders == null ? "–" : holders + (capped ? "+" : "")}</span></td>
+      <td class="n hide-sm">${vol == null ? "–" : `<span class="${vol >= RULES.vol14 ? "yes" : ""}">${fmt(vol)}</span> BDAG`}</td>
+      <td>${reward}</td></tr>`);
+  }
+  $("rows").innerHTML = out.reverse().join("");
+  $("status").textContent = `Updated ${new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Bangkok" })} Bangkok time. Green numbers meet the rule.`;
+}
+function whyNot7(liq, holders) {
+  const n = [];
+  if (liq < RULES.liq) n.push(`liquidity under ${fmt(RULES.liq)} BDAG`);
+  if (holders == null) n.push("holders couldn't be read");
+  else if (holders < RULES.h7) n.push(`${RULES.h7 - holders} more holder${RULES.h7 - holders === 1 ? "" : "s"}`);
+  return n.length ? "Needs: " + n.join(", ") : "";
+}
+function whyNot14(holders, vol) {
+  const n = [];
+  if (holders == null || holders < RULES.h14) n.push(`${RULES.h14} holders`);
+  if (vol == null || vol < RULES.vol14) n.push(`${fmt(RULES.vol14)} BDAG traded`);
+  return n.join(" and ");
+}
+run().catch((e) => { $("status").textContent = "Couldn't read the launches just now: " + e.message; });
+</script>
+</body>
+</html>

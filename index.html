@@ -58,6 +58,12 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
   .chainpick button small{line-height:1.3}
 }
 body:not(.on-base) .only-base,body.on-base .only-bdag{display:none!important}
+.promo{display:block;margin:0 0 18px;padding:14px 18px;border-radius:18px;text-decoration:none;color:var(--text);
+  background:linear-gradient(120deg,rgba(255,61,139,.16),rgba(62,240,193,.10));border:1px solid rgba(255,61,139,.45);box-shadow:0 0 24px -8px rgba(255,61,139,.5)}
+.promo:hover{border-color:var(--pink)}
+.promo .pt{display:block;font:400 18px "Righteous",sans-serif;color:var(--pink)}
+.promo .pb{display:block;margin:2px 0}.promo .pb b{color:var(--mint)}
+.promo .pl{display:block;font-size:14px;color:var(--muted)}.promo .pl b{color:var(--mint)}
 a{color:var(--mint)}
 .wrap{max-width:1040px;margin:0 auto;padding:0 16px}
 header.top{position:sticky;top:0;z-index:20;background:rgba(13,11,31,.82);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
@@ -185,6 +191,12 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
       <div class="board"><span class="we" id="signWe">Sorry,</span><span class="open" id="signOpen">CLOSED</span><span class="sub" id="signSub">checking the kitchen…</span></div>
     </div>
   </div>
+
+  <a class="promo only-bdag" id="promo" href="/promo/">
+    <span class="pt">🎄 Holiday promo</span>
+    <span class="pb">Cook a token before 31 Dec and earn <b>up to 30 REEF</b> back if people pick it up: 15 after a week, 15 more after two.</span>
+    <span class="pl"><b id="promoLeft">5,000</b> REEF left in the pot · rules and live list →</span>
+  </a>
 
   <section id="cook">
     <div class="chainpick" role="radiogroup" aria-label="Launch on">
@@ -540,6 +552,18 @@ let CFG = CHAINS.bdag;
   if (start && CHAINS[start] && CHAINS[start].factory) useChain(start, true);
   else useChain("bdag");
   load(); setInterval(load, 30000);
+})();
+</script>
+<script>
+(() => {
+  const end = Date.UTC(2026, 11, 31, 17, 0, 0);
+  if (Date.now() >= end) { const b = document.getElementById("promo"); if (b) b.remove(); return; }
+  fetch("/promo/payouts.json?v=" + Date.now()).then((r) => r.json()).then((list) => {
+    const paid = list.reduce((a, p) => a + Number(p.amount || 0), 0);
+    const left = Math.max(0, 5000 - paid);
+    document.getElementById("promoLeft").textContent = left.toLocaleString("en-US");
+    if (!left) document.getElementById("promo").remove();
+  }).catch(() => {});
 })();
 </script>
 </body>
