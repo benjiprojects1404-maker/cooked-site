@@ -143,6 +143,24 @@ async function holdersExcluding(token, skip) {
   return { n, capped: more };
 }
 
+// Logs from Reef's explorer (indexed, newest first), back to block `stopBelow`. Much faster than scanning the chain.
+async function expLogs(address, stopBelow) {
+  const out = [];
+  let params = "", pages = 0;
+  for (;;) {
+    const j = await getJson(`${EXP_API}/addresses/${address}/logs${params}`);
+    let older = false;
+    for (const it of j.items || []) {
+      const b = Number(it.block_number);
+      if (b < stopBelow) { older = true; break; }
+      out.push({ topics: (it.topics || []).filter((t) => t), data: it.data, blockNumber: b });
+    }
+    if (older || !j.next_page_params || ++pages >= 60) break;
+    params = "?" + new URLSearchParams(j.next_page_params).toString();
+  }
+  return out.reverse();
+}
+
 // First block at or after time t (binary search on block timestamps).
 async function blockAt(p, t, head) {
   if (head.timestamp <= t) return head.number;
@@ -185,8 +203,10 @@ async function run() {
   try { p = await provider(); } catch (e) { $("status").textContent = e.message; $("rows").innerHTML = ""; return; }
 
   const head = await p.getBlock("latest");
-  const startBlock = await blockAt(p, START, head);
-  const logs = await getLogsChunked(p, { address: KITCHEN, topics: [KITCHEN_IFACE.getEvent("TokenServed").topicHash] }, startBlock, head.number);
+  const SERVED = KITCHEN_IFACE.getEvent("TokenServed").topicHash;
+  let logs;
+  try { logs = (await expLogs(KITCHEN, 0)).filter((l) => l.topics[0] === SERVED); }
+  catch (e) { logs = await getLogsChunked(p, { address: KITCHEN, topics: [SERVED] }, await blockAt(p, START, head), head.number); }
   const launches = [];
   for (const l of logs) {
     const ev = KITCHEN_IFACE.parseLog(l);
@@ -224,7 +244,10 @@ async function run() {
     const end14 = Math.min(head.number, L.block + Math.ceil((14 * DAY) / spb));
     let vol = 0;
     try {
-      const sl = await getLogsChunked(p, { address: L.pair, topics: [PAIR_IFACE.getEvent("Swap").topicHash] }, L.block, end14);
+      const SWAP = PAIR_IFACE.getEvent("Swap").topicHash;
+      let sl;
+      try { sl = (await expLogs(L.pair, L.block)).filter((l) => l.topics[0] === SWAP && l.blockNumber <= end14); }
+      catch (e) { sl = await getLogsChunked(p, { address: L.pair, topics: [SWAP] }, L.block, end14); }
       for (const s of sl) {
         const a = PAIR_IFACE.parseLog(s).args;
         vol += Number(E.formatEther(bdagIs0 ? a.amount0In + a.amount0Out : a.amount1In + a.amount1Out));
