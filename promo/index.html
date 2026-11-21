@@ -110,6 +110,11 @@ const END = Date.UTC(2026, 11, 31, 17, 0, 0) / 1000;   // 1 Jan 2027 00:00 Bangk
 const POT = 5000, DAY = 86400;
 // Launched just before the promo opened and included as an early supporter.
 const EARLY = new Set(["0xe17672c2c34d6c56b1dfd65c1896c6cb973d9676"]); // FLASH, 17 Nov
+// Kitchen launches are read from here on: FLASH's launch block (28,878,753), just before the promo window
+// (which opens at block 29,286,789). Stops the explorer paging back through all history and keeps FLASH in the
+// chain-scan fallback.
+const FROM_BLOCK = 28878700;
+const CACHE_KEY = "promoRows.v1";
 const RULES = { liq: 10000, h7: 10, h14: 25, vol14: 50000 };
 
 const $ = (id) => document.getElementById(id);
@@ -128,7 +133,9 @@ async function provider() {
   }
   throw new Error("Couldn't reach BlockDAG just now.");
 }
-const getJson = (u) => fetch(u, { signal: AbortSignal.timeout(12000) }).then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); });
+const getJsonOnce = (u, ms) => fetch(u, { signal: AbortSignal.timeout(ms) }).then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); });
+// The explorer is sometimes slow to answer the first request: wait longer, then try once more.
+const getJson = (u) => getJsonOnce(u, 20000).catch(() => getJsonOnce(u, 20000));
 
 async function holdersExcluding(token, skip) {
   let n = 0, params = "", pages = 0, more = true;
@@ -207,17 +214,16 @@ async function run() {
   const head = await p.getBlock("latest");
   const SERVED = KITCHEN_IFACE.getEvent("TokenServed").topicHash;
   let logs;
-  try { logs = (await expLogs(KITCHEN, 0)).filter((l) => l.topics[0] === SERVED); }
-  catch (e) { logs = await getLogsChunked(p, { address: KITCHEN, topics: [SERVED] }, await blockAt(p, START, head), head.number); }
-  const launches = [];
-  for (const l of logs) {
+  try { logs = (await expLogs(KITCHEN, FROM_BLOCK)).filter((l) => l.topics[0] === SERVED); }
+  catch (e) { logs = await getLogsChunked(p, { address: KITCHEN, topics: [SERVED] }, FROM_BLOCK, head.number); }
+  const launches = (await Promise.all(logs.map(async (l) => {
     const ev = KITCHEN_IFACE.parseLog(l);
     const b = await p.getBlock(l.blockNumber);
     const tok = ev.args.token.toLowerCase();
-    if ((b.timestamp < START && !EARLY.has(tok)) || b.timestamp >= END) continue;
-    launches.push({ token: ev.args.token.toLowerCase(), creator: ev.args.creator.toLowerCase(), pair: ev.args.pair.toLowerCase(),
-      name: ev.args.name, symbol: ev.args.symbol, block: l.blockNumber, ts: b.timestamp });
-  }
+    if ((b.timestamp < START && !EARLY.has(tok)) || b.timestamp >= END) return null;
+    return { token: tok, creator: ev.args.creator.toLowerCase(), pair: ev.args.pair.toLowerCase(),
+      name: ev.args.name, symbol: ev.args.symbol, block: l.blockNumber, ts: b.timestamp };
+  }))).filter(Boolean);
   $("nLaunch").textContent = launches.length;
   $("nLaunchS").textContent = launches.length === 1 ? "token cooked so far" : "tokens cooked so far";
   if (!launches.length) {
@@ -234,7 +240,9 @@ async function run() {
   const rewarded = new Set(payouts.map((x) => x.creator.toLowerCase()));
   const seenWallet = new Set();
   const out = [];
-  for (const L of launches.sort((a, b) => a.ts - b.ts)) {
+  // Read every launch's numbers at once, then apply the rules in launch order (one reward per wallet).
+  const SWAP = PAIR_IFACE.getEvent("Swap").topicHash;
+  const data = await Promise.all(launches.sort((a, b) => a.ts - b.ts).map(async (L) => {
     const pair = new E.Contract(L.pair, PAIR_IFACE, p);
     const [res, t0] = await Promise.all([pair.getReserves(), pair.token0()]);
     const bdagIs0 = t0.toLowerCase() === WBDAG;
@@ -247,7 +255,6 @@ async function run() {
     const end14 = Math.min(head.number, L.block + Math.ceil((14 * DAY) / spb));
     let vol = 0;
     try {
-      const SWAP = PAIR_IFACE.getEvent("Swap").topicHash;
       let sl;
       try { sl = (await expLogs(L.pair, L.block)).filter((l) => l.topics[0] === SWAP && l.blockNumber <= end14); }
       catch (e) { sl = await getLogsChunked(p, { address: L.pair, topics: [SWAP] }, L.block, end14); }
@@ -256,7 +263,9 @@ async function run() {
         vol += Number(E.formatEther(bdagIs0 ? a.amount0In + a.amount0Out : a.amount1In + a.amount1Out));
       }
     } catch (e) { vol = null; }
-
+    return { L, liq, holders, capped, vol };
+  }));
+  for (const { L, liq, holders, capped, vol } of data) {
     const age = head.timestamp - L.ts;
     const paidHere = payouts.filter((x) => x.token.toLowerCase() === L.token);
     const paidAmt = paidHere.reduce((a, x) => a + Number(x.amount || 0), 0);
@@ -284,7 +293,19 @@ async function run() {
   }
   $("rows").innerHTML = out.reverse().join("");
   $("status").textContent = `Updated ${new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Bangkok" })} Bangkok time. Green numbers meet the rule.`;
+  try { localStorage.setItem(CACHE_KEY, JSON.stringify({ at: Date.now(), rows: $("rows").innerHTML, n: launches.length })); } catch (e) {}
 }
+// Show the last result straight away (this browser only) while the page reads the chain again.
+function showCached() {
+  try {
+    const c = JSON.parse(localStorage.getItem(CACHE_KEY) || "null");
+    if (!c || !c.rows || Date.now() - c.at > 7 * DAY * 1000) return;
+    $("rows").innerHTML = c.rows;
+    $("nLaunch").textContent = c.n;
+    $("status").textContent = `Showing the check from ${new Date(c.at).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Asia/Bangkok" })} Bangkok time while it updates…`;
+  } catch (e) {}
+}
+showCached();
 function whyNot7(liq, holders) {
   const n = [];
   if (liq < RULES.liq) n.push(`liquidity under ${fmt(RULES.liq)} BDAG`);
