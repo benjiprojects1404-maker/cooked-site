@@ -626,14 +626,18 @@ let CFG = CHAINS.bdag;
       const d = r.ok ? await r.json() : null;
       const list = (d && Array.isArray(d.tickers) ? d.tickers : []).filter((t) => t.priceBDAG > 0)
         .sort((a, b) => (Number(b.volume24hBDAG) - Number(a.volume24hBDAG)) || (Number(b.liquidityBDAG) - Number(a.liquidityBDAG)));
-      if (!list.length) return;
+      if (!list.length) throw new Error("no data");
       const keep = rail.scrollLeft;
       track.innerHTML = list.map((t) => chip(t)).join("") + (still ? "" : list.map((t) => chip(t, true)).join(""));
       rail.scrollLeft = keep;
       document.getElementById("ticker").hidden = false;
-      start();
-    } catch (e) {}
+      start(); tries = 0;
+    } catch (e) {
+      // First load failed (public nodes can be slow): try again soon rather than waiting a minute.
+      if (document.getElementById("ticker").hidden && ++tries <= 3) setTimeout(load, 5000 * tries);
+    }
   }
+  let tries = 0;
   load(); setInterval(load, 60000);
 })();
 </script>
