@@ -194,15 +194,73 @@ ol.next span{font-size:14px;color:var(--muted)}
 .fine{font-size:13px;color:var(--muted)}
 .fine p{margin:0 0 8px}
 footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;padding:18px 0 30px;margin-top:40px}
+
+/* App layout (Nov 2026, like Reef): logo menu, Cook / Fresh tokens / How it works views, bottom nav on phones */
+.kbrand{position:relative;flex:1 1 auto;min-width:0;display:flex}
+button.logo{background:none;border:0;padding:0;margin:0;cursor:pointer;text-align:left;font:inherit;color:inherit;flex:0 1 auto}
+button.logo .chev{width:18px;height:18px;flex:none;fill:none;stroke:var(--muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s;filter:none;align-self:center}
+button.logo[aria-expanded="true"] .chev{transform:rotate(180deg)}
+.appmenu{position:absolute;top:calc(100% + 12px);left:0;width:280px;max-height:calc(100vh - 110px);overflow:auto;background:#15122e;border:1px solid var(--line2);border-radius:16px;padding:8px;box-shadow:0 24px 50px -16px rgba(0,0,0,.7),0 0 0 1px rgba(255,61,139,.08);z-index:40}
+.appmenu[hidden]{display:none}
+.appmenu .mgrp{padding:4px 2px 8px;border-bottom:1px solid var(--line)}
+.appmenu .mgrp b{display:block;font:800 10.5px/1 "Nunito",sans-serif;letter-spacing:.18em;text-transform:uppercase;color:var(--pink);padding:10px 10px 6px}
+.appmenu .mgrp a{display:block;padding:8px 10px;border-radius:9px;font-weight:700;font-size:14px;color:var(--text);text-decoration:none}
+.appmenu .mgrp a:hover{background:rgba(255,61,139,.1);color:var(--head)}
+.appmenu .msoc{display:flex;gap:8px;padding:10px 10px 4px}
+.appmenu .msoc a{width:34px;height:34px;display:grid;place-items:center;border-radius:50%;border:1px solid var(--line2);color:var(--muted)}
+.appmenu .msoc a:hover{color:var(--mint);border-color:var(--mint)}
+.appmenu .msoc svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+nav.vtabs a.on{color:var(--head)} nav.vtabs a.on::after{transform:scaleX(1)}
+.view{display:none}
+body[data-view="cook"] .view[data-view="cook"],body[data-view="fresh"] .view[data-view="fresh"],body[data-view="how"] .view[data-view="how"]{display:block}
+.view[data-view="fresh"]>.tk{margin-top:26px}
+.bottomnav{display:none}
+.chainpick{display:none!important}
+body[data-view="base"] .view[data-view="cook"],body[data-view="base"] .view[data-view="fresh"]{display:block}
+body[data-view="base"] .view[data-view="fresh"]{margin-top:10px}
+.basenote{margin:22px 0 0;padding:12px 16px;border:1px solid rgba(62,240,193,.35);border-radius:14px;background:rgba(62,240,193,.07);display:flex;flex-direction:column;gap:3px;font-size:14px;color:var(--muted)}
+.basenote b{font:400 18px/1.2 "Righteous",sans-serif;color:var(--mint)}
+.basenote a{color:var(--mint)}
+@media (max-width:760px){
+  header.top{position:sticky!important}
+  .bar{flex-wrap:nowrap;padding:10px 0}
+  nav.vtabs{display:none!important}
+  .logo svg{width:34px;height:34px}
+  .logo b{font-size:30px}
+  .logo small{font-size:9.5px;margin-top:5px}
+  .appmenu{position:fixed;top:74px;left:12px;right:12px;width:auto}
+  .view[data-view="cook"] .sign{display:none}
+  .view[data-view="cook"] .hero{padding:16px 0 6px}
+  .view[data-view="cook"] .hero h1{font-size:32px}
+  .view[data-view="cook"] .hero p{font-size:15.5px}
+  .view[data-view="cook"] .chips{display:none}
+  .bottomnav{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:30;background:rgba(13,11,31,.93);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid var(--line);padding:6px 4px calc(6px + env(safe-area-inset-bottom))}
+  .bottomnav::before{content:"";position:absolute;left:0;right:0;top:-1px;height:2px;background:linear-gradient(90deg,transparent,var(--pink) 25%,var(--violet) 55%,var(--mint) 80%,transparent);opacity:.6}
+  .bottomnav a{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0;color:var(--muted);text-decoration:none;font-weight:800;font-size:12px}
+  .bottomnav a.on{color:var(--pink);text-shadow:0 0 8px rgba(255,61,139,.5)}
+  .bottomnav svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  .bottomnav a.on svg{filter:drop-shadow(0 0 4px rgba(255,61,139,.6))}
+  body{padding-bottom:74px}
+}
 </style>
 </head>
 <body>
 <header class="top"><div class="wrap bar">
-  <a class="logo" href="/" aria-label="The Kitchen home"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 7c4 10 14 15 14 29a14 14 0 0 1-28 0c0-7 4-11 7-15 1 5 3 7 6 8-2-8 0-15 1-22z" fill="none" stroke="#ff3d8b" stroke-width="4" stroke-linejoin="round"/><path d="M32 38c2 3 6 5 6 10a6 6 0 0 1-12 0c0-3 2-5 3-7 1 2 2 3 3 3z" fill="none" stroke="#3ef0c1" stroke-width="3" stroke-linejoin="round"/></svg><div><b><i>The</i>Kitchen</b><small>Cook up your own token</small></div></a>
-  <nav><a href="#fresh">Fresh tokens</a><a href="#how">How it works</a><a class="hm" href="/cooked/">The original COOKED</a><a class="hm" href="https://reefdex.fyi" target="_blank" rel="noopener">Reef</a><a class="cta" href="#cook">Cook a token</a></nav>
+  <div class="kbrand">
+  <button type="button" class="logo" id="brandBtn" aria-expanded="false" aria-haspopup="menu" aria-controls="appMenu" aria-label="The Kitchen menu"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 7c4 10 14 15 14 29a14 14 0 0 1-28 0c0-7 4-11 7-15 1 5 3 7 6 8-2-8 0-15 1-22z" fill="none" stroke="#ff3d8b" stroke-width="4" stroke-linejoin="round"/><path d="M32 38c2 3 6 5 6 10a6 6 0 0 1-12 0c0-3 2-5 3-7 1 2 2 3 3 3z" fill="none" stroke="#3ef0c1" stroke-width="3" stroke-linejoin="round"/></svg><div><b><i>The</i>Kitchen</b><small>Cook up your own token</small></div><svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+  <div class="appmenu" id="appMenu" role="menu" hidden>
+    <div class="mgrp"><b>The Kitchen</b><a href="#cook">Cook a token</a><a href="#fresh">Fresh tokens</a><a class="only-bdag" href="/promo/">Holiday promo: up to 30 REEF</a><a href="#how">How it works</a><a href="#base">Cook on Base (Uniswap, ETH)</a><a href="https://github.com/benjiprojects1404-maker/reef-dex-site/tree/main/contracts/contracts/kitchen" target="_blank" rel="noopener">Contract source</a></div>
+    <div class="mgrp"><b>Tokens</b><a href="/cooked/">The original COOKED</a><a href="https://reefdex.fyi/token/" target="_blank" rel="noopener">Token safety reports</a></div>
+    <div class="mgrp"><b>Also on BlockDAG</b><a href="https://reefdex.fyi" target="_blank" rel="noopener">Reef DEX</a><a href="https://www.nodaldex.fyi" target="_blank" rel="noopener">Nodal</a><a href="https://handshakeotc.fyi" target="_blank" rel="noopener">Handshake OTC</a></div>
+    <div class="msoc"><a href="https://x.com/benji107" target="_blank" rel="noopener" aria-label="X"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4l16 16M20 4 4 20"/></svg></a><a href="https://t.me/undercurrentworks" target="_blank" rel="noopener" aria-label="Telegram"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 4-18 7 6 2 2 6 3-4 5 4 2-15Z"/></svg></a><a href="https://github.com/benjiprojects1404-maker/cooked-site" target="_blank" rel="noopener" aria-label="GitHub"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 19c-4 1.5-4-2-6-2.5m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6 0 0 0-1.3-3.2 4.2 4.2 0 0 0-.1-3.2s-1.1-.3-3.5 1.3a12 12 0 0 0-6.2 0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2 0 0 0-.1 3.2A4.6 4.6 0 0 0 4 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg></a></div>
+  </div>
+  </div>
+  <nav class="vtabs" aria-label="Sections"><a data-v="cook" href="#cook">Cook</a><a data-v="fresh" href="#fresh">Fresh tokens</a><a data-v="base" href="#base">On Base</a><a data-v="how" href="#how">How it works</a></nav>
 </div></header>
 
 <main class="wrap">
+  <div class="view" data-view="cook">
+  <div class="basenote only-base"><b>Also cooking on Base</b><span>Same Kitchen, on Base: your token's pool goes on Uniswap and you pay in ETH. For BlockDAG (chain 1404) and Reef, use the <a href="#cook">Cook</a> tab.</span></div>
   <div class="hero">
     <div>
     <h1>Cook up your <span class="glow">own token.</span></h1>
@@ -274,6 +332,8 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
     </div>
   </section>
 
+  </div>
+  <div class="view" data-view="fresh">
   <section class="tk only-bdag" id="ticker" aria-label="Reef pools: price in BDAG and 24-hour change" hidden>
     <div class="lead"><b>Cooking on Reef</b><span>Price in BDAG · 24h change</span><a href="https://reefdex.fyi/pairs/" target="_blank" rel="noopener">All pools →</a></div>
     <div class="rail" id="tkRail"><div class="track" id="tkTrack"></div></div>
@@ -285,6 +345,8 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
     <div class="fresh" id="freshList"><p class="empty">Loading…</p></div>
   </section>
 
+  </div>
+  <div class="view" data-view="how">
   <section id="how">
     <h2>How it works</h2>
     <p class="sub">One transaction, one contract, nothing hidden.</p>
@@ -302,8 +364,11 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;paddin
       <p style="margin:0"><b style="color:var(--text)">Not advice.</b> Nothing here is financial, legal or tax advice. Check what applies to you where you live before launching a token.</p>
     </div>
   </section>
+  </div>
 </main>
 <footer><div class="wrap">Built by <a href="https://benjiprojects1404-services.pages.dev" target="_blank" rel="noopener">Undercurrent Works</a>. BlockDAG tokens are served on <a href="https://reefdex.fyi" target="_blank" rel="noopener">Reef</a>; Base tokens on Uniswap. Home of <a href="/cooked/">the original COOKED</a>.</div></footer>
+<nav class="bottomnav" aria-label="Sections"><a data-v="cook" href="#cook"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c2 5 7 7 7 13a7 7 0 0 1-14 0c0-3.5 2-5.5 3.5-7.5.5 2.5 1.5 3.5 3 4-1-4 0-7.5.5-9.5z"/></svg><span>Cook</span></a><a data-v="fresh" href="#fresh"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v4M12 16v4M4 12h4M16 12h4M6.5 6.5l2 2M15.5 15.5l2 2M6.5 17.5l2-2M15.5 8.5l2-2"/></svg><span>Fresh</span></a><a data-v="base" href="#base"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12H14"/></svg><span>Base</span></a><a data-v="how" href="#how"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.01"/></svg><span>How</span></a></nav>
+
 
 <script>
 "use strict";
@@ -562,22 +627,21 @@ let CFG = CHAINS.bdag;
       $("fLiq").value = c.liqDefault;
       $("servedBox").classList.add("hide"); msg("");
       $("freshList").innerHTML = '<p class="empty">Loading…</p>';
-      try { localStorage.setItem("kitchen-chain", c.key); } catch (e) {}
-      if (c.key === "bdag") history.replaceState(null, "", location.pathname + location.hash);
-      else history.replaceState(null, "", "?chain=" + c.key + location.hash);
       checkNet(); load();
     }
     render();
   }
   if (!CHAINS.base.factory) {
     const b = document.querySelector('.chainpick [data-chain="base"]');
-    b.disabled = true; $("baseSub").textContent = "coming soon";
+    if (b) { b.disabled = true; $("baseSub").textContent = "coming soon"; }
   }
   document.querySelectorAll(".chainpick button").forEach((b) => b.addEventListener("click", () => useChain(b.dataset.chain, true)));
-  let start = new URLSearchParams(location.search).get("chain");
-  if (!start) { try { start = localStorage.getItem("kitchen-chain"); } catch (e) {} }
-  if (start && CHAINS[start] && CHAINS[start].factory) useChain(start, true);
-  else useChain("bdag");
+  // Which chain comes from the tab: #base is Base, everything else is BlockDAG (chain 1404). Nothing is remembered,
+  // so a 1404 visitor always starts on 1404. Old ?chain=base links are turned into #base.
+  if (new URLSearchParams(location.search).get("chain") === "base") history.replaceState(null, "", location.pathname + "#base");
+  try { localStorage.removeItem("kitchen-chain"); } catch (e) {}
+  window.kitchenUseChain = (k) => useChain(CHAINS[k] && CHAINS[k].factory ? k : "bdag", true);
+  useChain(location.hash === "#base" ? "base" : "bdag", true);
   load(); setInterval(load, 30000);
 })();
 </script>
@@ -651,6 +715,31 @@ let CFG = CHAINS.bdag;
     document.getElementById("promoLeft").textContent = left.toLocaleString("en-US");
     if (!left) document.getElementById("promo").remove();
   }).catch(() => {});
+})();
+</script>
+<script>
+// Views (Nov 2026): #cook (default), #fresh, #how. The section ids match, so old links keep working.
+(function () {
+  const VIEWS = ["cook", "fresh", "base", "how"];
+  let first = true;
+  function route() {
+    const h = location.hash.slice(1), v = VIEWS.includes(h) ? h : "cook";
+    document.body.dataset.view = v;
+    if (window.kitchenUseChain) window.kitchenUseChain(v === "base" ? "base" : "bdag");
+    document.querySelectorAll("[data-v]").forEach((a) => { const on = a.dataset.v === v; a.classList.toggle("on", on); if (on) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
+    if (!first || VIEWS.includes(h)) window.scrollTo({ top: 0, behavior: "instant" });
+    first = false; close();
+  }
+  const btn = document.getElementById("brandBtn"), menu = document.getElementById("appMenu");
+  function close() { if (!menu.hidden) { menu.hidden = true; btn.setAttribute("aria-expanded", "false"); } }
+  btn.addEventListener("click", (e) => { e.stopPropagation(); menu.hidden = !menu.hidden; btn.setAttribute("aria-expanded", menu.hidden ? "false" : "true"); });
+  document.addEventListener("click", (e) => { if (!menu.hidden && !menu.contains(e.target)) close(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") close(); });
+  menu.addEventListener("click", (e) => { if (e.target.closest("a")) close(); });
+  window.addEventListener("hashchange", route);
+  route();
+  // A view link (#cook, #fresh, #how) opens that view at the top, not scrolled to the section inside it.
+  window.addEventListener("load", () => { if (VIEWS.includes(location.hash.slice(1))) window.scrollTo({ top: 0, behavior: "instant" }); });
 })();
 </script>
 </body>
