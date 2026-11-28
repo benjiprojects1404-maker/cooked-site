@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
+<meta charset="utf-8"><script>try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>The Kitchen · Cook up your own token on BlockDAG</title>
 <meta name="description" content="Make your own token on BlockDAG and its Reef pool in one transaction, no code. Plain, fixed supply, no owner, no tax, no mint, and the starting liquidity can never be pulled.">
@@ -242,6 +242,36 @@ body[data-view="base"] .view[data-view="fresh"]{margin-top:10px}
   .bottomnav a.on svg{filter:drop-shadow(0 0 4px rgba(255,61,139,.6))}
   body{padding-bottom:74px}
 }
+
+/* Light / dark switch (28 Nov 2026). The choice is saved; with no choice the phone or computer setting decides. */
+.themebtn{flex:none;width:34px;height:34px;display:grid;place-items:center;border-radius:999px;border:1px solid var(--line2);background:transparent;color:var(--muted);cursor:pointer;padding:0}
+.themebtn:hover{color:var(--text);border-color:var(--pink)}
+.themebtn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+@media (max-width:760px){.bar .themebtn{width:32px;height:32px}}
+
+/* The Kitchen in daylight (28 Nov 2026): cream counters, the same neon signs, darker so they read on white. */
+:root[data-theme="light"]{--bg:#f5f0fa;--card:#ffffff;--raised:#f0eaf9;--line:rgba(60,30,120,.14);--line2:rgba(60,30,120,.26);
+  --text:#2a2340;--muted:#5b5280;--head:#3b2a7a;--pink:#d4145f;--pink-ink:#ffffff;--mint:#0a8a6a;--mint-ink:#ffffff;--violet:#6447d6;--warn:#9a5a00;--bad:#c62828;color-scheme:light}
+:root[data-theme="light"] body{background-image:radial-gradient(50% 35% at 85% -5%,rgba(255,61,139,.12),transparent 70%),radial-gradient(45% 30% at 0% 100%,rgba(62,240,193,.12),transparent 70%)}
+:root[data-theme="light"] body::before{background:linear-gradient(180deg,rgba(245,240,250,.86),rgba(245,240,250,.92) 45%,rgba(245,240,250,.97) 85%),url("assets/kitchen-wide.webp") center 30%/cover no-repeat;filter:grayscale(1)}
+@media (max-aspect-ratio:4/5){:root[data-theme="light"] body::before{background:linear-gradient(180deg,rgba(245,240,250,.8),rgba(245,240,250,.9) 45%,rgba(245,240,250,.97) 85%),url("assets/kitchen-tall.webp") 60% 20%/cover no-repeat}}
+:root[data-theme="light"] .card,:root[data-theme="light"] .tok{background:linear-gradient(115deg,rgba(255,255,255,0) 30%,rgba(255,255,255,.6) 46%,rgba(255,255,255,0) 60%),repeating-linear-gradient(90deg,rgba(0,0,0,.012) 0 1px,rgba(255,255,255,.3) 1px 3px),linear-gradient(180deg,#fdfdfe,#f1f2f6 55%,#e9ebf0)!important;
+  border:1px solid rgba(40,30,80,.13)!important;box-shadow:inset 0 1px 0 #fff,0 10px 28px -12px rgba(60,30,120,.22)}
+:root[data-theme="light"] .card input[type=text],:root[data-theme="light"] .card select{background:#fff;border-color:rgba(40,30,80,.2)}
+:root[data-theme="light"] .chainpick button{background:rgba(255,255,255,.85)}
+:root[data-theme="light"] header.top{background:rgba(245,240,250,.86)}
+:root[data-theme="light"] .logo svg{filter:drop-shadow(0 0 4px rgba(255,61,139,.35))}
+:root[data-theme="light"] .logo b{color:var(--pink);text-shadow:0 0 10px rgba(255,61,139,.3)}
+:root[data-theme="light"] .logo b i{color:var(--mint);text-shadow:0 0 8px rgba(62,240,193,.35)}
+:root[data-theme="light"] .sign .board{background:rgba(255,255,255,.75);box-shadow:0 0 10px rgba(255,61,139,.35),inset 0 0 8px rgba(255,61,139,.2)}
+:root[data-theme="light"] .sign .we{text-shadow:0 0 8px rgba(62,240,193,.4)}
+:root[data-theme="light"] .sign .open{text-shadow:0 0 10px rgba(255,61,139,.4)}
+:root[data-theme="light"] .sign.off .board{border-color:#c4bcdf}
+:root[data-theme="light"] .sign.off .we,:root[data-theme="light"] .sign.off .open{color:#a59cc6;text-shadow:none}
+:root[data-theme="light"] .hero h1 .glow{text-shadow:0 0 14px rgba(255,61,139,.25)}
+:root[data-theme="light"] .ticket .tk,:root[data-theme="light"] .served h3{text-shadow:none}
+:root[data-theme="light"] .appmenu{background:#fff;box-shadow:0 24px 50px -16px rgba(60,30,120,.3)}
+@media (max-width:760px){:root[data-theme="light"] .bottomnav{background:rgba(245,240,250,.95)}:root[data-theme="light"] .bottomnav a.on{text-shadow:none}}
 </style>
 </head>
 <body>
@@ -256,6 +286,7 @@ body[data-view="base"] .view[data-view="fresh"]{margin-top:10px}
   </div>
   </div>
   <nav class="vtabs" aria-label="Sections"><a data-v="cook" href="#cook">Cook</a><a data-v="fresh" href="#fresh">Fresh tokens</a><a data-v="base" href="#base">On Base</a><a data-v="how" href="#how">How it works</a></nav>
+  <button class="themebtn" id="themeBtn" type="button" aria-label="Switch theme"></button>
 </div></header>
 
 <main class="wrap">
@@ -740,6 +771,32 @@ let CFG = CHAINS.bdag;
   route();
   // A view link (#cook, #fresh, #how) opens that view at the top, not scrolled to the section inside it.
   window.addEventListener("load", () => { if (VIEWS.includes(location.hash.slice(1))) window.scrollTo({ top: 0, behavior: "instant" }); });
+})();
+</script>
+<script>
+/* Light / dark switch */
+(function () {
+  var root = document.documentElement, btn = document.getElementById("themeBtn");
+  if (!btn) return;
+  var mq = matchMedia("(prefers-color-scheme: light)");
+  var SUN = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>';
+  var MOON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>';
+  function now() { return root.dataset.theme || (mq.matches ? "light" : "dark"); }
+  function paint() {
+    var light = now() === "light";
+    btn.innerHTML = light ? MOON : SUN;
+    btn.setAttribute("aria-label", light ? "Switch to dark mode" : "Switch to light mode");
+    btn.title = light ? "Dark mode" : "Light mode";
+    var m = document.querySelector('meta[name="theme-color"]'); if (m) m.content = light ? "#f5f0fa" : "#0d0b1f";
+  }
+  btn.addEventListener("click", function () {
+    var next = now() === "light" ? "dark" : "light";
+    root.dataset.theme = next;
+    try { localStorage.setItem("theme", next); } catch (e) {}
+    paint();
+  });
+  if (mq.addEventListener) mq.addEventListener("change", paint);
+  paint();
 })();
 </script>
 </body>
